@@ -1,2 +1,2 @@
-*.keys
+*.cfg
 __pycache__/

@@ -1,0 +1,18 @@
+[APP]
+secret_key          = <a secret key for your app>
+host                = 127.0.0.1
+port                = 5000
+base_url            = /api
+version             = v1
+
+[SPOTIFY_AUTH]
+client_id           = <your Spotify client ID>
+client_secret       = <your Spotify client secret>
+local_redirect_uri  = callback
+scopes              = user-library-read,playlist-modify-public,playlist-modify-private
+
+[SPOTIFY_API]
+auth_url            = https://accounts.spotify.com/authorize
+token_url           = https://accounts.spotify.com/api/token
+base_url            = https://api.spotify.com
+version             = v1
