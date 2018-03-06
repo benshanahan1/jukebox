@@ -1,0 +1,37 @@
+{# Base HTML template for Jukebox app. #}
+{# 6 March 2018, Benjamin Shanahan #}
+
+<!doctype html>
+
+<html>
+    <head>
+        {% block prebody %}
+            {% include "include/prebody.html" %}
+        {% endblock %}
+    </head>
+<body>
+
+    <div class="container">
+
+        <header>
+            {% block header %}
+                <h1>Jukebox</h1>
+            {% endblock %}
+        </header>
+
+        <div class="section">
+
+            {% block content %}
+            {% endblock %}
+
+        </div>
+
+    </div>
+
+</body>
+    <footer>
+        {% block footer %}
+            {% include "include/footer.html" %}
+        {% endblock %}
+    </footer>
+</html>

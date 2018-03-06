@@ -1,58 +1,23 @@
-<!doctype html>
-<html>
-<head>
-    <title>Jukebox</title>
+{# Core Jukebox app. #}
+{# 6 March 2018, Benjamin Shanahan #}
+{% extends "base.html" %}
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+{% block prebody %}
+    {{ super() }}
+{% endblock %}
 
+{% block header %}
+    {{ super() }}
+    <p>
+        <img class="img-fluid z-depth-1 rounded-circle user-image" src="" alt="Profile Image" id="user-profile-image">
+    </p>
+    <p>Hello, <span id="user-display-name">undefined</span>!</p>
+{% endblock %}
 
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-<!-- Bootstrap core CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-<!-- Material Design Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.0/css/mdb.min.css" rel="stylesheet">
-
-
-<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
-<!-- JQuery -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-</head>
-<body>
-
-<div class="container">
-   
-
-    <header>
-        <h1>Jukebox</h1>
-        <p><img class="img-fluid z-depth-1 rounded-circle user-image" src="{{context['user_image']}}" alt="Profile Image"></p>
-        <p>Hello, {{context["user_display_name"]}}!</p>
-    </header>
-
-    <hr>
-
-    <style>
-        hr {
-            width: 80%;
-            color: #cccccc;   
-        }
-        header {
-            text-align: center;
-            margin-top: 50px;
-        }
-        .user-image {
-            max-width: 150px;
-        }
-        .create-party-btn {
-            font-size: 14pt;
-        }
-    </style>
-
-
+{% block content %}
 
     <!-- Party creation form -->
-    <form>
+    <form class="new-party-form">
         <p class="h4 text-center mb-4">Create New Party</p>
         <p class="text-center">Fill out a few details and we'll take care of the rest!</p>
 
@@ -61,89 +26,31 @@
             <!-- TODO bug it seems that font-awesome is blocking interactivity -->
             <i class="fas fa-users prefix grey-text"></i>
             <input type="text" class="form-control" id="new-party-name">
-            <label for="materialFormRegisterNameEx">Party name</label>
+            <label for="new-party-name">Party name</label>
         </div>
 
         <!-- Party description -->
         <div class="md-form">
             <i class="fas fa-quote-left prefix grey-text"></i>
             <input type="text" class="form-control" id="new-party-description">
-            <label for="materialFormRegisterEmailEx">Party description</label>
+            <label for="new-party-description">Party description</label>
         </div>
 
         <!-- Starter playlist (optional) -->
         <div class="md-form">
             <i class="fas fa-music prefix grey-text"></i>
             <input type="text" class="form-control" id="new-party-playlist">
-            <label for="materialFormRegisterConfirmEx">Starter playlist</label>
+            <label for="new-party-playlist">Starter playlist</label>
         </div>
 
         <div class="text-center mt-4">
-            <button class="create-party-btn btn btn-unique" type="button" id="new-party-btn">Create Party!</button>
+            <button class="create-party-btn btn btn-unique" type="button" id="new-party-btn">Create Party</button>
         </div>
     </form>
     <!-- END Party creation form -->
-                          
-                          
 
+    <div class="account-links">
+        <a href="/logout">Logout</a>&nbsp;|&nbsp;<a href="javascript:revoke_permissions();" target="_blank">Revoke Permissions</a>
+    </div>
 
-    <!-- Do stuff when party is created -->
-    <script src="static/js/api.js"></script>
-    <script>
-        $("#new-party-btn").click(function() {
-            // Get user inputs.
-            var new_party_name          = $("#new-party-name").val();
-            var new_party_description   = $("#new-party-description").val();
-            var new_party_playlist      = $("#new-party-playlist").val();
-
-            // Error check user inputs.
-            var name_ok     = (new_party_name != undefined && new_party_name.length >= 1);
-            var playlist_ok = (new_party_playlist != undefined && new_party_playlist.substring(0,13) == "spotify:user:");
-            if (new_party_description == undefined)
-                new_party_description = "Jukebox playlist.";
-
-            if (name_ok && playlist_ok) {
-                create_party(new_party_name, new_party_description, new_party_playlist);
-            }
-        });
-
-        function create_party(name, description, playlist) {
-            name = name.replace(/\s/g, "");  // TODO title this
-            var payload = {
-                "name":         name,
-                "description":  description,
-                "playlist":     playlist
-            };
-            api_post("party/" + name, JSON.stringify(payload), function(data) {
-                console.log(data);
-            });
-        }
-    </script>
-
-
-    <hr>
-
-    <a href="/logout">Logout</a><br>
-    <a href="javascript:revoke_permissions();" target="_blank">Revoke Jukebox permissions from your Spotify account</a>
-
-    <script>
-    function revoke_permissions() {
-        window.open("https://www.spotify.com/us/account/apps/");
-        window.location.replace("/logout");
-    }
-    </script>
-
-</div>
-
-</body>
-
-
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.13.0/umd/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.5.0/js/mdb.min.js"></script>
-            
-
-</html>
+{% endblock %}

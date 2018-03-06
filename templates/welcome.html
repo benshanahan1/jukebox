@@ -1,13 +1,24 @@
-<!doctype html>
-<html>
-<head>
-    <title>Jukebox</title>
-</head>
-<body>
+{# Welcome page for Jukebox app. #}
+{# 6 March 2018, Benjamin Shanahan #}
+{% extends "base.html" %}
 
-<h2>Jukebox</h2>
+{% block prebody %}
+    {{ super() }}
+{% endblock %}
 
-Please <a href="/jukebox">login with spotify</a> to continue.
+{% block header %}
+    {{ super() }}
+    <p>Crowd-source your party's next playlist.</p>
+{% endblock %}
 
-</body>
-</html>
+{% block content %}
+
+<div class="section center-aligned">
+    <br><br>
+    <p>
+        Please <a href="/login">login with spotify</a> to continue.
+    </p>
+    <br>
+</div>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+hr {
+    width: 80%;
+    color: #cccccc;   
+}
+header {
+    text-align: center;
+    margin-top: 50px;
+    border-bottom: solid 1px #eeeeee;
+    max-width: 80%;
+    margin-left: 10%;
+}
+footer {
+    text-align: center;
+    font-size: 9pt;
+    color: #999999;
+    font-style: italic;
+}
+.user-image {
+    max-width: 150px;
+}
+.create-party-btn {
+    font-size: 13pt;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+.account-links {
+    margin-top: 20px;
+    font-size: 10pt;
+    padding-bottom: 20px;
+    text-align: center;
+}
+.new-party-form {
+    margin-top: 30px;
+}
+.left-aligned {
+    text-align: left;
+}
+.center-aligned {
+    text-align: center;
+}
+.right-aligned {
+    text-align: right;
+}
