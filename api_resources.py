@@ -1,4 +1,5 @@
 from flask_restful import Resource
+from flask import request
 
 
 class Party(Resource):
@@ -8,7 +9,25 @@ class Party(Resource):
         return "{}!".format(party_name)
 
     def post(self, party_name):
-        return "Created new party playlist: {}".format(party_name)
+        try:
+            party_details = request.get_json()
+
+            print("Create playlist: {}".format(party_details))
+
+            # rv = client.api.user_playlist_create(user_id, 
+            #     party_details["name"],
+            #     description=party_details["description"])
+
+            # print("request returned: {}".format(rv))
+
+            # GET /v1/users/{user_id}/playlists/{playlist_id} Get a Playlist
+
+            # client.api.user_playlist_tracks_add(user_id, )
+
+            return "Created new party playlist: {}".format(party_name)
+        except Exception as e:
+            print("Error: {}; Received: {}".format(e, request.data))
+            return "Failed to create new party."
 
 
 class Song(Resource):

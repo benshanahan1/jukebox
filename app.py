@@ -50,6 +50,11 @@ def get_auth(token=None):
     return auth
 
 @app.route("/")
+@app.route("/welcome")
+def welcome():
+    return render_template("welcome.html", context={})
+
+@app.route("/jukebox")
 def jukebox_app():
     token = session.get("spotify_token")
     if not token:
@@ -63,8 +68,8 @@ def jukebox_app():
     user_image          = user["images"][0]["url"]
     user_uri            = user["uri"]
 
-    client.api.user_playlist_create(user_id, "jukebox_test_playlist",
-        description="Jukebox test playlist.")
+    # client.api.user_playlist_create(user_id, "jukebox_test_playlist",
+    #     description="Jukebox test playlist.")
 
     return render_template("jukebox.html", context={
         "user":                 user,

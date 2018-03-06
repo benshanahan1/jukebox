@@ -9,7 +9,7 @@ version             = v1
 client_id           = <your Spotify client ID>
 client_secret       = <your Spotify client secret>
 local_redirect_uri  = callback
-scopes              = user-library-read,playlist-modify-public,playlist-modify-private
+scopes              = playlist-modify-public
 
 [SPOTIFY_API]
 auth_url            = https://accounts.spotify.com/authorize
