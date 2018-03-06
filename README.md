@@ -21,6 +21,9 @@ And open your web browser to [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 ## Screenshots
 
 ![Welcome](static/img/screenshot/welcome-page.png "Welcome")
+
 ![Spotify login](static/img/screenshot/spotify-login-page.png "Spotify login")
+
 ![Jukebox app](static/img/screenshot/jukebox-app-page.png "Jukebox app")
+
 ![Playlist created](static/img/screenshot/spotify-playlist-created.png "Playlist created")
