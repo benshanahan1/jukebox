@@ -1,0 +1,28 @@
+{# Create a new Jukebox party. #}
+{# 6 March 2018, Benjamin Shanahan #}
+{% extends "jukebox_base.html" %}
+
+{% block jukebox_header %}
+    <p>
+        Viewing party {{context["party_code"]}}.
+        {% if context["is_party_host"] %}
+            You are this party's host!
+        {% else %}
+            You are a party guest!
+        {% endif %}
+    </p>
+{% endblock %}
+
+{% block jukebox_content %}
+    <h4>Party Name Here</h4>
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+    <!-- Load app with RequireJS. -->
+    <script>
+        requirejs(["static/js/common"], function(common) {
+            requirejs(["static/js/init_view_party_page"]);
+        });
+    </script>
+{% endblock %}

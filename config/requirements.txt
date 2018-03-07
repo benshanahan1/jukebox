@@ -3,3 +3,4 @@ Flask==0.12.2
 Flask-RESTful==0.3.6
 decorator==4.2.1
 spotify-api==0.0.8
+Flask-Session==0.3.1

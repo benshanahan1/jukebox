@@ -1,24 +1,13 @@
-{# Core Jukebox app. #}
+{# Create a new Jukebox party. #}
 {# 6 March 2018, Benjamin Shanahan #}
-{% extends "base.html" %}
+{% extends "jukebox_base.html" %}
 
-{% block prebody %}
-    {{ super() }}
-{% endblock %}
+{% block jukebox_content %}
 
-{% block header %}
-    {{ super() }}
-    <p>
-        <img class="img-fluid z-depth-1 rounded-circle user-image" src="" alt="Profile Image" id="user-profile-image">
-    </p>
-    <p>Hello, <span id="user-display-name">undefined</span>!</p>
-{% endblock %}
-
-{% block content %}
-
+    <h3>Create New Party</h3>
+    
     <!-- Party creation form -->
     <form class="new-party-form">
-        <p class="h4 text-center mb-4">Create New Party</p>
         <p class="text-center">Fill out a few details and we'll take care of the rest!</p>
 
         <!-- Party name -->
@@ -49,8 +38,14 @@
     </form>
     <!-- END Party creation form -->
 
-    <div class="account-links">
-        <a href="/logout">Logout</a>&nbsp;|&nbsp;<a href="javascript:revoke_permissions();" target="_blank">Revoke Permissions</a>
-    </div>
+{% endblock %}
 
+{% block footer %}
+    {{ super() }}
+    <!-- Load app with RequireJS. -->
+    <script>
+        requirejs(["static/js/common"], function(common) {
+            requirejs(["static/js/init_create_party_page"]);
+        });
+    </script>
 {% endblock %}

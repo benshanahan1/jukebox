@@ -1,70 +1,14 @@
 from flask_restful import Resource
-from flask import request, session, abort, redirect, url_for
-from spotify import OAuth, Client
-from configparser import ConfigParser
-
-# Load configuration files.
-app_config = ConfigParser()
-app_config.read("config/app.cfg")
-
-# Server configuration.
-HOST        = app_config["APP"]["host"]
-PORT        = app_config["APP"].getint("port")
-FULL_HOST   = "http://{}:{}".format(HOST, PORT)
-
-
-def get_client():
-    token = session.get("spotify_token")
-    if not token:
-        return redirect(url_for("login"))
-    client = Client(get_auth(token))
-    return client
-
-def get_auth(token=None):
-    auth = OAuth(
-        app_config["SPOTIFY_AUTH"]["client_id"],
-        app_config["SPOTIFY_AUTH"]["client_secret"],
-        redirect_uri="{}/{}".format(FULL_HOST, app_config["SPOTIFY_AUTH"]["local_redirect_uri"]),
-        scopes=app_config["SPOTIFY_AUTH"]["scopes"].split(",")
-    )
-    auth.token = token
-    return auth
-
-
-
-
-class SpotifyAuthorize(Resource):
-    """
-    """
-    def get(self):
-        auth = get_auth()
-        return redirect(auth.authorize_url)
-
-class SpotifyCallback(Resource):
-    """
-    """
-    def get(self):
-        error_message = request.args.get("error")
-        if error_message == "access_denied":
-            abort(401, "User declined Spotify account access.")
-        elif error_message is not None:
-            abort(404, "Request failed: {}".format(error_message))
-        auth = get_auth()
-        auth.request_token(request.url)
-        session["spotify_token"] = auth.token
-        # global client
-        client = get_client()
-        return redirect(url_for("jukebox_app"))
-
-
+from flask import request, session, abort
+from spotify import Client, OAuth
 
 
 class Me(Resource):
     """
     """
     def get(self):
-        client = get_client()
-        return client.api.me()
+        me = session.get("me")
+        return me if me else {}
 
 class Party(Resource):
     """
@@ -74,8 +18,10 @@ class Party(Resource):
 
     def post(self, party_name):
         party_details   = request.get_json()
-        client          = get_client()
-        me              = client.api.me()
+        auth            = OAuth(None, None)
+        auth.token      = session.get("spotify_token")
+        client          = Client(auth, session.get("client_session"))
+        me              = session.get("me")
         user_id         = me["id"]
         if user_id:
 

@@ -4,7 +4,8 @@ hr {
 }
 header {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 60px;
+    margin-bottom: 30px;
     border-bottom: solid 1px #eeeeee;
     max-width: 80%;
     margin-left: 10%;
@@ -14,6 +15,32 @@ footer {
     font-size: 9pt;
     color: #999999;
     font-style: italic;
+}
+h1 {
+    font-family: 'Quicksand', sans-serif;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+h2 {
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
+}
+h3 {
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
+}
+h4 {
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
+}
+h5 {
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
+}
+h6 {
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
 }
 .user-image {
     max-width: 150px;

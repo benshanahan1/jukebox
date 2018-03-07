@@ -1,0 +1,23 @@
+{
+    
+    "APP": {
+        "app_name":             "Jukebox",
+        "app_description":      "Crowd-source the playlist for your next party.",
+        "app_author":           "Benjamin Shanahan",
+        "app_author_website":   "http://bshanahan.info",
+        "app_version":          "0.1",
+        "secret_key":           "<YOUR FLASK APP SECRET KEY HERE>",
+        "host":                 "127.0.0.1",
+        "port":                 5000,
+        "api_base":             "/api",
+        "api_version":          "v1"
+    },
+
+    "SPOTIFY_AUTH": {
+        "client_id":            "<YOUR SPOTIFY CLIENT ID HERE>",
+        "client_secret":        "<YOUR SPOTIFY CLIENT SECRET HERE>",
+        "local_redirect_uri":   "api/v1/spotify/callback",
+        "scopes":               "playlist-modify-public"
+    }
+
+}
