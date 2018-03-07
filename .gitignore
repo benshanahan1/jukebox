@@ -1,5 +1,4 @@
 config/app.json
-*.cfg
 __pycache__/
 session_cache/*
 !.gitkeep
