@@ -4,7 +4,7 @@ from gevent.wsgi import WSGIServer
 from flask import Flask, session, request, redirect, url_for, render_template
 from flask_restful import Api
 from spotify import Client, OAuth
-from lib.api_resources import Me, Party, Song, Votes
+from lib.api_resources import Me, Party, Votes
 from lib.utilities import get_server_location, get_app_secret_key, get_api_root, get_jinja_context
 from lib.utilities import get_spotify_auth, store_client_in_session
 from json import load
@@ -29,7 +29,6 @@ Session(app)
 API_ROOT = get_api_root() 
 api.add_resource(Me,    API_ROOT + "/me")
 api.add_resource(Party, API_ROOT + "/party/<string:party_name>")
-api.add_resource(Song,  API_ROOT + "/party/<string:party_name>/song/<string:song_id>")
 api.add_resource(Votes, API_ROOT + "/party/<string:party_name>/song/<string:song_id>/votes/<string:vote_type>")
 
 
