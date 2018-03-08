@@ -19,10 +19,12 @@
 
 {% block footer %}
     {{ super() }}
-    <!-- Load app with RequireJS. -->
-    <script>
-        requirejs(["static/js/common"], function(common) {
-            requirejs(["static/js/init_view_party_page"]);
-        });
+    <!-- Load app JS requirements. -->
+    <script src="static/js/api.js"></script>
+    <script src="static/js/jukebox.js"></script>
+    <!-- Defer app start until page has loaded. -->
+    <script defer>
+        // TODO
+        console.log("Loaded create view party page.");
     </script>
 {% endblock %}

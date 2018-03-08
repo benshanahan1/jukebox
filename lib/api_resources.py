@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from flask import request, session, abort
-from spotify import Client, OAuth
+from spotify import Client
+from lib.utilities import recreate_client_from_session, get_user_id
 
 
 class Me(Resource):
@@ -10,6 +11,7 @@ class Me(Resource):
         me = session.get("me")
         return me if me else {}
 
+
 class Party(Resource):
     """
     """
@@ -18,12 +20,9 @@ class Party(Resource):
 
     def post(self, party_name):
         party_details   = request.get_json()
-        auth            = OAuth(None, None)
-        auth.token      = session.get("spotify_token")
-        client          = Client(auth, session.get("client_session"))
-        me              = session.get("me")
-        user_id         = me["id"]
-        if user_id:
+        client          = recreate_client_from_session()
+        user_id         = get_user_id()
+        if client and user_id:
 
             # Create the playlist.
             new_playlist_metadata = client.api.user_playlist_create(

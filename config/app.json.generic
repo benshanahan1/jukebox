@@ -16,7 +16,7 @@
     "SPOTIFY_AUTH": {
         "client_id":            "<YOUR SPOTIFY CLIENT ID HERE>",
         "client_secret":        "<YOUR SPOTIFY CLIENT SECRET HERE>",
-        "local_redirect_uri":   "api/v1/spotify/callback",
+        "local_redirect_uri":   "callback",
         "scopes":               "playlist-modify-public"
     }
 
