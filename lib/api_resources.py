@@ -2,6 +2,7 @@ from flask_restful import Resource
 from flask import request, session, abort
 from spotify import Client
 from lib.utilities import recreate_client_from_session, get_user_id
+from uuid import uuid4
 
 
 class Me(Resource):
@@ -56,8 +57,12 @@ class Party(Resource):
 
             # Add the party and itself details into the database.
             # TODO add database call
+            party_id = uuid4().hex[:8]
 
-            return "Created new party: {}".format(party_name)
+            return {
+                "party_id": party_id,
+                "message": "Created new party: {}".format(party_name)
+            }
         else:
             abort(401, "User has not logged in to Spotify.")
 

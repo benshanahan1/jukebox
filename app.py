@@ -43,26 +43,36 @@ def welcome():
 
 
 @app.route("/jukebox")
-def jukebox_app():
-    # Create a Spotify Client and store its parameters in a persistent session.
-    token   = session.get("spotify_token")
-    client  = Client(get_spotify_auth(token))
-    store_client_in_session(client)  # store client in session so we can later retrieve it
-    party_code  = request.args.get("party")
-    if not party_code:
-        if not token:
-            return redirect(url_for("authorize"))
-        else:
-            return render_template("jukebox_create_party.html", context=get_jinja_context())
+def jukebox_create_party():
+    token = session.get("spotify_token")  # retrieve authorized spotify token, if exists
+    # We are *creating* a new party.
+    if not token:
+        # We don't have a valid token stored. User is not authorized. 
+        # Redirect to Spotify for authorization.
+        return redirect(url_for("authorize"))
     else:
-        if True:  #TODO: does_party_exist(party_code)
-            # TODO get info based on party code
-            # TODO if a token exists, determine if logged in user owns this party.
-            additional_context = {
-                "is_party_host":    True,  # is_party_host(user_id, party_code)
-                "party_code":       party_code
-            }
-            return render_template("jukebox_view_party.html", context=get_jinja_context(additional_context))
+        # We have a token, let's authorize the token with Spotify and then
+        # store the client in a session so we can access it later. Then
+        # render the create party page.
+        client  = Client(get_spotify_auth(token))
+        store_client_in_session(client)  # store client in session so we can later retrieve it
+        return render_template("jukebox_create_party.html", 
+            context=get_jinja_context())
+
+@app.route("/<string:party_id>")
+def jukebox_view_party(party_id):
+    token = session.get("spotify_token")  # retrieve authorized spotify token, if exists
+    if party_id and True:  #TODO: does_party_exist(party_id)
+        # We are *viewing* an existing party.
+        # TODO get info based on party_id
+        # TODO if a token exists, determine if logged in user is the host of this party
+        additional_context = {
+            "is_party_host": token is not None,  # is_party_host(user_id, party_id)
+            "party_id":      party_id
+        }
+        return render_template("jukebox_view_party.html", context=get_jinja_context(additional_context))
+    else:
+        return redirect(url_for("jukebox_create_party"))
 
 
 @app.route("/login")
@@ -82,7 +92,7 @@ def callback():
     auth = get_spotify_auth()
     auth.request_token(request.url)
     session["spotify_token"] = auth.token
-    return redirect(url_for("jukebox_app"))
+    return redirect(url_for("jukebox_create_party"))
 
 
 @app.route("/logout")
