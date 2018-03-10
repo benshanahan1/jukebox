@@ -4,7 +4,8 @@ from gevent.wsgi import WSGIServer
 from flask import Flask, session, request, redirect, url_for, render_template
 from flask_restful import Api
 from spotify import Client, OAuth
-from lib.api_resources import Me, Party, Votes
+from lib.api_resources import Me, GetParty, CreateParty, Votes
+from lib.utilities import get_database_connection, get_user_id
 from lib.utilities import get_server_location, get_app_secret_key, get_api_root, get_jinja_context
 from lib.utilities import get_spotify_auth, store_client_in_session
 from json import load
@@ -15,6 +16,7 @@ app         = Flask(__name__)
 api         = Api(app)
 http_server = WSGIServer(get_server_location(), app)
 app.config["SECRET_KEY"] = get_app_secret_key()
+database    = get_database_connection()
 
 # Use Flask-Session to enable file-system session storage, and permit saving
 # entire objects from memory.
@@ -27,9 +29,10 @@ Session(app)
 
 # Add API resources.
 API_ROOT = get_api_root() 
-api.add_resource(Me,    API_ROOT + "/me")
-api.add_resource(Party, API_ROOT + "/party/<string:party_name>")
-api.add_resource(Votes, API_ROOT + "/party/<string:party_name>/song/<string:song_id>/votes/<string:vote_type>")
+api.add_resource(Me, API_ROOT + "/me")
+api.add_resource(GetParty, API_ROOT + "/party/<string:party_id>")
+api.add_resource(CreateParty, API_ROOT + "/party")
+api.add_resource(Votes, API_ROOT + "/party/<string:party_id>/song/<string:song_id>/votes/<string:vote_type>")
 
 
 ###############################################################################
@@ -62,17 +65,20 @@ def jukebox_create_party():
 @app.route("/<string:party_id>")
 def jukebox_view_party(party_id):
     token = session.get("spotify_token")  # retrieve authorized spotify token, if exists
-    if party_id and True:  #TODO: does_party_exist(party_id)
-        # We are *viewing* an existing party.
-        # TODO get info based on party_id
-        # TODO if a token exists, determine if logged in user is the host of this party
+    user_id = get_user_id()  # get user_id from session ,if exists
+    if party_id and database.check_party_exists(party_id):
+        # We are *viewing* an existing party. Check if the current user is 
+        # logged in, and if so, if they are the party host.
+        is_user_party_host = False
+        if user_id:
+            is_user_party_host = database.is_user_party_host(user_id, party_id)
         additional_context = {
-            "is_party_host": token is not None,  # is_party_host(user_id, party_id)
+            "is_party_host": is_user_party_host,
             "party_id":      party_id
         }
         return render_template("jukebox_view_party.html", context=get_jinja_context(additional_context))
     else:
-        return redirect(url_for("jukebox_create_party"))
+        return redirect(url_for("welcome"))
 
 
 @app.route("/login")

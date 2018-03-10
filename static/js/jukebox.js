@@ -45,7 +45,7 @@ function create_party(name, description, playlist) {
         "description":  description,
         "playlist":     playlist
     };
-    api_post("party/" + name, JSON.stringify(payload), function(data) {
+    api_post("party", JSON.stringify(payload), function(data) {
         console.log(data.message);
         window.location.replace("/" + data.party_id)
     });

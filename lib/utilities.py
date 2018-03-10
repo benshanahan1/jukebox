@@ -3,6 +3,8 @@
 from spotify import OAuth, Client
 from flask import session
 from json import load
+from lib.database import Database
+from uuid import uuid4
 
 # Load app configuration from ``config_json_file`` file. Do this on load.
 def load_app_config(config_json_file):
@@ -11,6 +13,17 @@ def load_app_config(config_json_file):
         app_config = load(config_file)
     return app_config
 app_config = load_app_config("config/app.json")
+
+###############################################################################
+## Connect to database.
+###############################################################################
+def get_database_connection():
+    database = Database(
+        app_config["DATABASE"]["host"],
+        app_config["DATABASE"]["username"],
+        app_config["DATABASE"]["password"],
+        app_config["DATABASE"]["dbname"])
+    return database
 
 ###############################################################################
 ## Server and API helper functions.
@@ -81,3 +94,11 @@ def get_user_display_name():
     """ Return user's display name if there is a user logged in. """
     user_display_name = session.get("user_display_name")
     return user_display_name if user_display_name else None
+
+###############################################################################
+## Party creation and management.
+###############################################################################
+
+def generate_party_id():
+    ID_LENGTH = 6
+    return uuid4().hex[:ID_LENGTH]

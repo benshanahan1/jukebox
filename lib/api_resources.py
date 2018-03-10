@@ -1,9 +1,12 @@
 from flask_restful import Resource
 from flask import request, session, abort
 from spotify import Client
+from lib.utilities import get_database_connection
 from lib.utilities import recreate_client_from_session, get_user_id
-from uuid import uuid4
+from lib.utilities import generate_party_id
+from re import sub
 
+database = get_database_connection()
 
 class Me(Resource):
     """Read-only info about current user.
@@ -13,17 +16,19 @@ class Me(Resource):
         return me if me else {}
 
 
-class Party(Resource):
-    """Party resource.
-
-    Create or obtain details about a pre-existing party.
+class GetParty(Resource):
+    """Get details about a party.
     """
-    def get(self, party_name):
-        """ Anyone can access details about a party. """
-        # TODO database call
-        return "You accessed the party: {}".format(party_name)
+    def get(self, party_id):
+        if party_id and len(party_id) > 0:
+            party_id = sub(r"\W+", "", party_id)  # clean string
+            return database.get_party(party_id)
 
-    def post(self, party_name):
+
+class CreateParty(Resource):
+    """Create a new party via POST request.
+    """
+    def post(self):
         """ Create a new party. User must be authenticated and have a stored session. """
         client          = recreate_client_from_session()
         user_id         = get_user_id()
@@ -56,12 +61,12 @@ class Party(Resource):
                 new_playlist_id, starter_playlist_tracks)
 
             # Add the party and itself details into the database.
-            # TODO add database call
-            party_id = uuid4().hex[:8]
+            party_id = generate_party_id()
+            database.create_party(user_id, client.auth.token, party_id)
 
             return {
                 "party_id": party_id,
-                "message": "Created new party: {}".format(party_name)
+                "message": "Created new party: {}".format(party_details["name"])
             }
         else:
             abort(401, "User has not logged in to Spotify.")
@@ -70,7 +75,7 @@ class Party(Resource):
 class Votes(Resource):
     """Enable user voting (without login required).
     """
-    def get(self, party_name, song_id, vote_type):
+    def get(self, party_id, song_id, vote_type):
         vote_type = vote_type.lower()
         # TODO database calls
         if vote_type == "up":
@@ -82,5 +87,5 @@ class Votes(Resource):
         else:
             return "Unrecognized vote type."
 
-    def put(self, party_name, song_id, vote_type):
+    def put(self, party_id, song_id, vote_type):
         return "Voting {} for song {}".format(vote_type, song_id)
