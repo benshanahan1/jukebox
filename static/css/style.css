@@ -61,15 +61,21 @@ h6 {
 }
 .tracks-display {
     text-align: left;
-    font-size: 16pt;
+    padding-left: 5px;
 }
-.song { }
+.song {
+    border-bottom: solid .1px #eeeeee;
+}
 .song-name {
     font-weight: bold;
+    font-size: 13pt;
 }
-.song-artists { }
-.song-votes {
+.song-artists {
     font-style: italic;
+    font-size: 12pt;
+}
+.song-votes {
+    font-size: 14pt;
 }
 .left-aligned {
     text-align: left;

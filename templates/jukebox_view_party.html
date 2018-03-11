@@ -11,10 +11,14 @@
     <div class="tracks-display">
     
     {% for track in context["tracks"] %}
-        <div class="song">
-            <span class="song-name">{{track["name"]}}</span>
-            <span class="song-artists">{{track["artists"]}}</span>
-            <span class="song-votes">{{track["votes"]}}</span>
+        <div class="row song align-items-center">
+            <span class="col-4 song-name">{{track["name"]}}</span>
+            <span class="col-4 song-artists">{{track["artists"]}}</span>
+            <span class="col-2 song-votes">{{track["votes"]}}</span>
+            <span class="col-2 song-votes">
+                <a href="#">&#x25B2;</a><br>
+                <a href="#">&#x25BC;</a>
+            </span>
         </div>
     {% endfor %}
     
