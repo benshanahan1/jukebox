@@ -3,18 +3,22 @@
 {% extends "jukebox_base.html" %}
 
 {% block jukebox_header %}
-    <p>
-        Viewing party {{context["party_id"]}}.
-        {% if context["is_party_host"] %}
-            You are this party's host!
-        {% else %}
-            You are a party guest!
-        {% endif %}
-    </p>
+    <h4>{{context["party_name"]}}</h4>
+    <p>{{context["party_description"]}}</p>
 {% endblock %}
 
 {% block jukebox_content %}
-    <h4>Party Name Here</h4>
+    <div class="tracks-display">
+    
+    {% for track in context["tracks"] %}
+        <div class="song">
+            <span class="song-name">{{track["name"]}}</span>
+            <span class="song-artists">{{track["artists"]}}</span>
+            <span class="song-votes">{{track["votes"]}}</span>
+        </div>
+    {% endfor %}
+    
+    </div>
 {% endblock %}
 
 {% block footer %}

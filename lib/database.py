@@ -167,13 +167,15 @@ class Database(object):
                 """SELECT *
                     FROM `{}`
                 """.format(party_id))
-            return {"meta": meta_data, "songs": song_data}
+            return {"meta": meta_data[0], "songs": song_data}
         except Exception as e:
             print("An error occurred: {}".format(e))
             return False
 
     def is_user_party_host(self, user_id, party_id):
         """Is the logged in user the party host?"""
+        if not user_id or not party_id:
+            return False
         try:
             result = self.query(
                 """SELECT party_id 

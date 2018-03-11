@@ -59,6 +59,18 @@ h6 {
 .new-party-form {
     margin-top: 30px;
 }
+.tracks-display {
+    text-align: left;
+    font-size: 16pt;
+}
+.song { }
+.song-name {
+    font-weight: bold;
+}
+.song-artists { }
+.song-votes {
+    font-style: italic;
+}
 .left-aligned {
     text-align: left;
 }

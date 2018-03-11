@@ -69,12 +69,14 @@ def jukebox_view_party(party_id):
     if party_id and database.check_party_exists(party_id):
         # We are *viewing* an existing party. Check if the current user is 
         # logged in, and if so, if they are the party host.
+        party_details = database.get_party(party_id)
         additional_context = {
-            "party_id":         party_id,
-            "is_party_host":    False
+            "party_id":             party_id,
+            "party_name":           party_details["meta"]["party_name"],
+            "party_description":    party_details["meta"]["party_description"],
+            "tracks":               party_details["songs"],
+            "is_party_host":        database.is_user_party_host(user_id, party_id)
         }
-        if user_id and database.is_user_party_host(user_id, party_id):
-            additional_context["is_party_host"] = True        
         return render_template("jukebox_view_party.html", context=get_jinja_context(additional_context))
     else:
         return redirect(url_for("welcome"))
