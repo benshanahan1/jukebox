@@ -16,13 +16,33 @@ class Me(Resource):
         return me if me else {}
 
 
-class GetParty(Resource):
-    """Get details about a party.
-    """
+class Party(Resource):
     def get(self, party_id):
+        """Get details about a party.
+        """
         if party_id and len(party_id) > 0:
-            party_id = sub(r"\W+", "", party_id)  # clean string
-            return database.get_party(party_id)
+            if database.check_party_exists(party_id):
+                party_id = sub(r"\W+", "", party_id)  # clean string
+                return database.get_party(party_id)
+            else:
+                abort(404, "The party could not be found.")
+        else:
+            abort(404, "Invalid party specified.")
+
+    def delete(self, party_id):
+        """Delete a party and remove it from the database. This action requires
+        that the logged in user is also the party host.
+        """
+        client  = recreate_client_from_session()
+        user_id = get_user_id()
+        if client and user_id:
+            if database.is_user_party_host(user_id, party_id):
+                database.delete_party(party_id)
+                return {"message": "Successfully deleted party {}.".format(party_id)}
+            else:
+                abort(403, "User is not the party host.")
+        else:
+            abort(403, "User is not logged in to spotify.")
 
 
 class CreateParty(Resource):
@@ -35,10 +55,13 @@ class CreateParty(Resource):
         party_details   = request.get_json()
         if client and user_id:
             # Create the playlist.
-            new_playlist_metadata = client.api.user_playlist_create(
+            party_name              = party_details["name"]
+            party_description       = party_details["description"]
+            party_starter_playlist  = party_details["playlist"]
+            new_playlist_metadata   = client.api.user_playlist_create(
                 user_id,
-                party_details["name"],
-                description=party_details["description"])
+                party_name,
+                description=party_description)
             new_playlist_id = new_playlist_metadata["id"]
 
             ## Get the tracklist in URIs for the submitted starter playlist.
@@ -47,45 +70,70 @@ class CreateParty(Resource):
             #
             #       spotify:user:spotify:playlist:37i9dQZF1DX4JAvHpjipBk
             #                    ^ user_id        ^ playlist ID
-            starter_playlist_uri        = party_details["playlist"]
-            starter_playlist_user_id    = starter_playlist_uri.split(":")[2]
-            starter_playlist_id         = starter_playlist_uri.split(":")[4]
+            starter_playlist_user_id    = party_starter_playlist.split(":")[2]
+            starter_playlist_id         = party_starter_playlist.split(":")[4]
 
             # Now, retrieve the playlist's tracks from Spotify's API.
             received_data = client.api.user_playlist_tracks(starter_playlist_user_id, 
                 starter_playlist_id)
-            starter_playlist_tracks = [item["track"]["uri"] for item in received_data["items"]]
+            tracks = [item["track"] for item in received_data["items"]]
+            uris   = [track["uri"] for track in tracks]
 
             # Add the entire tracklist from the starter playlist to the new playlist.
-            client.api.user_playlist_tracks_add(user_id, 
-                new_playlist_id, starter_playlist_tracks)
+            client.api.user_playlist_tracks_add(user_id, new_playlist_id, uris)
 
             # Add the party and itself details into the database.
             party_id = generate_party_id()
-            database.create_party(user_id, client.auth.token, party_id)
+            database.create_party(user_id, client.auth.token, 
+                party_id, party_name, party_description, party_starter_playlist, tracks)
 
             return {
                 "party_id": party_id,
                 "message": "Created new party: {}".format(party_details["name"])
             }
         else:
-            abort(401, "User has not logged in to Spotify.")
+            abort(403, "User has not logged in to Spotify.")
 
 
 class Votes(Resource):
     """Enable user voting (without login required).
     """
-    def get(self, party_id, song_id, vote_type):
-        vote_type = vote_type.lower()
-        # TODO database calls
-        if vote_type == "up":
-            return "Upvote count for {}".format(song_id)
-        elif vote_type == "down":
-            return "Downvote count for {}".format(song_id)
-        elif vote_type == "all":
-            return "Total vote count for {}".format(song_id)
+    def get(self, party_id, song_id):
+        """ Retrieve total vote count for a song. """
+        if database.check_song_exists(party_id, song_id):
+            return database.get_total_votes(party_id, song_id)
         else:
-            return "Unrecognized vote type."
+            abort(404, "Specified song / party does not exist.")
 
-    def put(self, party_id, song_id, vote_type):
-        return "Voting {} for song {}".format(vote_type, song_id)
+    def put(self, party_id, song_id):
+        """ Up-vote a song. """
+        if database.check_song_exists(party_id, song_id):
+            database.add_vote(party_id, song_id, 1)
+            return {"message": "Up-voted song {}.".format(song_id)}
+        else:
+            abort(404, "Specified song / party does not exist.")
+
+    def delete(self, party_id, song_id):
+        """ Down-vote a song. """
+        if database.check_song_exists(party_id, song_id):
+            database.add_vote(party_id, song_id, -1)
+            return {"message": "Down-voted song {}.".format(song_id)}
+        else:
+            abort(404, "Specified song / party does not exist.")
+
+
+
+
+
+# TODO: make votes adjust the playlist in spotify.
+
+
+# # If it's an unknown user or non-host user, let's recreate the host
+# # Spotify authorization so we can interact with the Web API.
+# token = database.retrieve_spotify_token(party_id)
+# if token:
+#     client = recreate_client(token)
+#     if client:
+#         print("got client")
+#     else:
+#         print("didn't work?")

@@ -76,14 +76,20 @@ def store_client_in_session(client):
     session["user_id"]              = me["id"]
     session["user_display_name"]    = me["display_name"]
 
-def recreate_client_from_session():
-    """ Attempt to recreate Client from values stored in session. """
-    token = session.get("spotify_token")
+def recreate_client(token=None):
+    """ Attempt to recreate Client from given tokene. """
     if token:
+        # If we've successfully retrieved the token from the session (or have
+        # been provided with a token), get authorization.
         auth = get_spotify_auth(token)
         return Client(auth, session.get("client_session"))
     else:
         return None
+
+def recreate_client_from_session():
+    """ Attempt to recreate Client from values stored in session. """
+    token = session.get("spotify_token")
+    return recreate_client(token)
 
 def get_user_id():
     """ Return user's Spotify ID if there is a user logged in. """

@@ -39,7 +39,7 @@ class Database(object):
 
         """
         self.lock.acquire()
-        if False: self.trace("QUERY: {}".format(q))  # debug
+        if False: print("QUERY: {}".format(q))  # debug
         self.conn.ping(True)  # refresh connection if time-out
         # Get cursor to execute SQL queries. The cursor should be a Dictionary
         # so that it's easier for us to work with.
@@ -51,26 +51,72 @@ class Database(object):
         self.lock.release()
         return rows
 
-    def create_party(self, user_id, user_spotify_token, party_id):
+    def create_party(self, user_id, user_spotify_token, party_id, 
+        party_name, party_description, party_starter_playlist, tracks):
         """Create a new party table."""
         if self.check_party_exists(party_id):
             return False
         # Add a parties entry.
         self.query(
             """INSERT INTO `jukeboxdb`.`parties` 
-                (`user_id`, `user_spotify_token`, `party_id`, `time_created`) 
-                VALUES ('{}', '{}', '{}', '{}');
-            """.format(user_id, dumps(user_spotify_token), party_id, str(time())))
+                (`party_id`, `user_spotify_token`, `user_id`, 
+                `party_name`, `party_description`, `party_starter_playlist`, 
+                `time_created`) 
+                VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}');
+            """.format(party_id, dumps(user_spotify_token), user_id, 
+                party_name, party_description, party_starter_playlist, str(time())))
         # Add a new party table.
         self.query(
             """CREATE TABLE {} (
                 `unique_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
                 `song_id` VARCHAR(64) NULL,
+                `name` VARCHAR(128) NULL,
+                `artists` VARCHAR(256) NULL,
                 `votes` INT NULL,
                 PRIMARY KEY (`unique_id`),
                 UNIQUE INDEX `row_id_UNIQUE` (`unique_id` ASC)
             )""".format(party_id))
+        # Add starter playlist tracks to the party table.
+        # First, format the query values properly.
+        catstr = ""
+        for track in tracks:
+            song_id         = track["id"]
+            name            = track["name"].replace("'","")  # TODO implement better char escaping
+            artists_list    = [artist["name"].replace("'","") for artist in track["artists"]]
+            artists         = ", ".join(artists_list)
+            catstr += "('{}', '{}', '{}', 0),".format(song_id, name, artists)
+        catstr = catstr[:-1]  # remove last comma
+        self.query(
+            """INSERT INTO `{}` (song_id, name, artists, votes)
+                VALUES {}
+            """.format(party_id, catstr))
         return True
+
+    def delete_party(self, party_id):
+        # Return if the specified party doesn't exist.
+        if not self.check_party_exists(party_id):
+            print("Cannot delete party because it does not exist.")
+            return False
+        # Else, let's remove all traces of it from the database.
+        try:
+            self.query("DROP TABLE {}".format(party_id))
+            self.query("DELETE FROM parties WHERE party_id='{}'".format(party_id))
+            return True
+        except Exception as e:
+            print("An error occurred while deleting party: {}".format(e))
+            return False
+
+    def retrieve_spotify_token(self, party_id):
+        # Retrieve the Spotify authorization token from the parties entry.
+        if self.check_party_exists(party_id):
+            rv = self.query(
+                """SELECT user_spotify_token
+                    FROM parties
+                    WHERE party_id='{}'
+                """.format(party_id))
+            return rv[0]
+        else:
+            return None
 
     def check_party_exists(self, party_id):
         """Check if a party table and row-entry exist in database."""
@@ -95,6 +141,17 @@ class Database(object):
             self.query("SELECT 1 FROM `{}` LIMIT 1".format(party_id))
             return True
         except:
+            return False
+
+    def check_song_exists(self, party_id, song_id):
+        if self.check_party_exists(party_id):
+            rv = self.query(
+                """SELECT *
+                    FROM {}
+                    WHERE song_id='{}'
+                """.format(party_id, song_id))
+            return rv != ()
+        else:
             return False
 
     def get_party(self, party_id):
@@ -125,4 +182,27 @@ class Database(object):
                 """.format(user_id))
             return result != ()
         except:
+            return False
+
+    def get_total_votes(self, party_id, song_id):
+        """ Get total vote count for specified song. """
+        if self.check_song_exists(party_id, song_id):
+            rv = self.query(
+                """SELECT votes
+                    FROM {}
+                    WHERE song_id='{}'
+                """.format(party_id, song_id))
+            return rv[0]["votes"]
+        else:
+            return False
+
+    def add_vote(self, party_id, song_id, vote_value):
+        """ Add a vote to the current song. """
+        if self.check_song_exists(party_id, song_id):
+            self.query(
+                """UPDATE {}
+                    SET votes = votes + {}
+                    WHERE song_id='{}'
+                """.format(party_id, vote_value, song_id))
+        else:
             return False
