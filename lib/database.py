@@ -206,5 +206,6 @@ class Database(object):
                     SET votes = votes + {}
                     WHERE song_id='{}'
                 """.format(party_id, vote_value, song_id))
+            return True
         else:
             return False

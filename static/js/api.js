@@ -47,11 +47,16 @@ function api_post(endpoint="", payload=undefined, callback=undefined) {
 // DELETE request to API
 function api_delete(endpoint="", callback=undefined) {
     var full_endpoint = api + endpoint;
-    $.delete(full_endpoint, function(data) {
-        if (callback != undefined) {
-            callback(JSON.parse(data));
+    $.ajax({
+        url: full_endpoint,
+        type: "DELETE",
+        success: function(data) {
+            if (callback != undefined) {
+                callback(data)
+            }
+        },
+        fail: function() {
+            console.log("DELETE request to API failed: " + full_endpoint);    
         }
-    }).fail(function() {
-        console.log("DELETE request to API failed: " + full_endpoint);
     });
 }

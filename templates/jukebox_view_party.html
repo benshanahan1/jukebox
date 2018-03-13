@@ -3,8 +3,10 @@
 {% extends "jukebox_base.html" %}
 
 {% block jukebox_header %}
-    <h4>{{context["party_name"]}}</h4>
-    <p>{{context["party_description"]}}</p>
+    <div class="party-header">
+        <h4>{{context["party_name"]}}</h4>
+        <p>{{context["party_description"]}}</p>
+    </div>
 {% endblock %}
 
 {% block jukebox_content %}
@@ -12,12 +14,17 @@
     
     {% for track in context["tracks"] %}
         <div class="row song align-items-center">
-            <span class="col-4 song-name">{{track["name"]}}</span>
-            <span class="col-4 song-artists">{{track["artists"]}}</span>
-            <span class="col-2 song-votes">{{track["votes"]}}</span>
-            <span class="col-2 song-votes">
-                <a href="#">&#x25B2;</a><br>
-                <a href="#">&#x25BC;</a>
+            <span class="col-4 song-name">
+                <a class="song-name-hyperlink" 
+                   href="https://open.spotify.com/track/{{track['song_id']}}" target="_blank">
+                   {{track["name"]}}
+                </a>
+            </span>
+            <span class="col-5 song-artists">{{track["artists"]}}</span>
+            <span id="{{track['song_id']}}-votes" class="col-1 song-votes">{{track["votes"]}}</span>
+            <span class="col-1 song-votes">
+                <a class="song-vote-btn" href="javascript:vote_on_song('{{track['song_id']}}-votes', '{{context['party_id']}}', '{{track['song_id']}}', 'up');">&#x25B2;</a><br>
+                <a class="song-vote-btn" href="javascript:vote_on_song('{{track['song_id']}}-votes', '{{context['party_id']}}', '{{track['song_id']}}', 'down');">&#x25BC;</a>
             </span>
         </div>
     {% endfor %}

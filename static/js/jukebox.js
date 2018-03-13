@@ -51,6 +51,25 @@ function create_party(name, description, playlist) {
     });
 }
 
+function vote_on_song(vote_display_id, party_id, song_id, vote_type) {
+    switch (vote_type.toLowerCase()) {
+        case "up":
+            api_post("party/" + party_id + "/song/" + song_id + "/votes", undefined, function(data) {
+                console.log(data.message);
+                $("#" + vote_display_id).text(data.vote_count);
+            });
+            break;
+        case "down":
+            api_delete("party/" + party_id + "/song/" + song_id + "/votes", function(data) {
+                console.log(data.message);
+                $("#" + vote_display_id).text(data.vote_count);
+            });
+            break;
+        default:
+            return undefined;
+    }
+}
+
 function revoke_permissions() {
     window.open("https://www.spotify.com/us/account/apps/");
     window.location.replace("/logout");
