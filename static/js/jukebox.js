@@ -3,12 +3,7 @@ var user_id             = undefined;
 var user_display_name   = undefined;
 var user_profile_image  = undefined;
 
-function initialize_jukebox() {
-    setup_interactions();
-    update_user_information();
-}
-
-function setup_interactions() {
+function initialize_create_party_page() {
     $("#new-party-btn").click(function() {
         // Get user inputs.
         var new_party_name          = $("#new-party-name").val();
@@ -26,6 +21,51 @@ function setup_interactions() {
             create_party(new_party_name, new_party_description, new_party_playlist);
         }
     });
+    update_user_information();
+}
+
+function initialize_view_party_page(party_id, is_party_host) {
+    $("#add-song-btn").click(function() {
+        // Get user input.
+        var new_song_uri = $("#add-song-uri-input").val();
+        if (new_song_uri == undefined) {
+            console.log("An error occurred.");
+            return false;
+        }
+
+        // Error check user input.
+        if (new_song_uri.length <= 0) {
+            $("#add-song-error-text").text("Please enter a Spotify URI.");
+            return false;
+        }
+        if (new_song_uri.indexOf("spotify:track:") === -1) {
+            $("#add-song-error-text").text("Please enter a valid Spotify URI.");
+            return false;
+        }
+        // Made it through all error conditions. Proceed.
+        add_song(party_id, new_song_uri, function() {
+            // Song was added successfully. Refresh page and highlight added entry.
+            location.replace(location.origin + location.pathname + "?highlight=" + new_song_uri);
+        }, function() {
+            // Invalid spotify URI.
+            $("#add-song-error-text").text("Please enter a valid Spotify URI.");
+            return false;
+        });
+    });
+    if (is_party_host) {
+        $("#spotify-export-btn").click(function() {
+            export_party(party_id, function() {
+                // TODO: alert user in GUI
+                $("#spotify-export-modal").modal("toggle");
+            });
+        });
+        $("#delete-party-btn").click(function() {
+            delete_party(party_id, function() {
+                $("#delete-party-modal").modal("toggle");
+                location.replace(location.origin);  // redirect user to homepage
+            });
+        });
+    }
 }
 
 function update_user_information() {
@@ -49,6 +89,34 @@ function create_party(name, description, playlist) {
         console.log(data.message);
         window.location.replace("/" + data.party_id)
     });
+}
+
+function export_party(party_id, callback) {
+    api_post("party/" + party_id, undefined, function() {
+        console.log("Exported party: " + party_id);
+        if (callback != undefined) {
+            callback();
+        }
+    })
+}
+
+function delete_party(party_id, callback) {
+    api_delete("party/" + party_id, function() {
+        console.log("Deleted party: " + party_id);
+        if (callback != undefined) {
+            callback();
+        }
+    });
+}
+
+function add_song(party_id, new_song_id, success_callback, error_callback) {
+    console.log("Party: " + party_id + ", Song: " + new_song_id + ". Not implemented.");
+    if (success_callback != undefined) {
+        success_callback();
+    }
+    // if (error_callback != undefined) {
+    //     error_callback();
+    // }
 }
 
 function vote_on_song(vote_display_id, party_id, song_id, vote_type) {

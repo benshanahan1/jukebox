@@ -29,6 +29,56 @@ class Party(Resource):
         else:
             abort(404, "Invalid party specified.")
 
+    def post(self, party_id):
+        # Export the specified party to Spotify. If the export_playlist field 
+        # from the database is populated and still exists in Spotify, just 
+        # update this playlist. Otherwise, create a new playlist.
+        client  = recreate_client_from_session()
+        user_id = get_user_id()
+        if not user_id or not client:
+            abort(403, "User is not logged in to Spotify.")
+
+        if database.check_party_exists(party_id):
+            if database.is_user_party_host(user_id, party_id):
+                # Okay, we're authenticated and everything exists.
+                # Retrieve party details from database.
+                details = database.get_party(party_id)
+                if not details:
+                    return {
+                        "message": "Unable to get information about the party from database!",
+                        "success": False
+                    }
+
+                prev_playlist = database.get_party_exported_playlist(party_id)
+                if prev_playlist and prev_playlist != "none":
+                    old_playlist_id = prev_playlist.split(":")[4]
+                    result = client.api.me_unfollow_playlist(user_id, old_playlist_id)
+
+                # Create a new playlist using name and description from database.
+                playlist = client.api.user_playlist_create(user_id,
+                    details["meta"]["party_name"],
+                    description=details["meta"]["party_description"])
+                playlist_id = playlist["id"]
+                database.update_party_exported_playlist(party_id, 
+                    "spotify:user:{}:playlist:{}".format(user_id, playlist_id))
+
+                # Sort and reorder song_uris by song_votes, descending.
+                song_votes  = [song["votes"] for song in details["songs"]]
+                song_uris   = ["spotify:track:{}".format(song["song_id"]) for song in details["songs"]]
+                sorted_idx  = sorted(range(len(song_votes)), key=lambda k: song_votes[k], reverse=True)
+                sorted_uris = [song_uris[i] for i in sorted_idx]
+                # Add songs from database to the new playlist.
+                client.api.user_playlist_tracks_add(user_id, playlist_id, sorted_uris)
+
+                return {
+                    "message": "Successfully exported party to Spotify.",
+                    "success": True
+                }
+            else:
+                abort(403, "User is not party host.")
+        else:
+            abort(404, "Party does not exist.")
+
     def delete(self, party_id):
         """Delete a party and remove it from the database. This action requires
         that the logged in user is also the party host.
@@ -42,7 +92,7 @@ class Party(Resource):
             else:
                 abort(403, "User is not the party host.")
         else:
-            abort(403, "User is not logged in to spotify.")
+            abort(403, "User is not logged in to Spotify.")
 
 
 class CreateParty(Resource):
@@ -58,12 +108,7 @@ class CreateParty(Resource):
             party_name              = party_details["name"]
             party_description       = party_details["description"]
             party_starter_playlist  = party_details["playlist"]
-            # new_playlist_metadata   = client.api.user_playlist_create(
-            #     user_id,
-            #     party_name,
-            #     description=party_description)
-            # new_playlist_id = new_playlist_metadata["id"]
-
+            
             ## Get the tracklist in URIs for the submitted starter playlist.
             # First, get the URI and parse out the playlist ID. The ID is the
             # last bit after ``playlist:``:
@@ -78,12 +123,8 @@ class CreateParty(Resource):
                 received_data = client.api.user_playlist_tracks(starter_playlist_user_id, 
                     starter_playlist_id)
                 tracks = [item["track"] for item in received_data["items"]]
-                # uris   = [track["uri"] for track in tracks]
             else:
                 tracks = []
-
-            # Add the entire tracklist from the starter playlist to the new playlist.
-            # client.api.user_playlist_tracks_add(user_id, new_playlist_id, uris)
 
             # Add the party and itself details into the database.
             party_id = generate_party_id()
@@ -111,11 +152,15 @@ class Votes(Resource):
     def post(self, party_id, song_id):
         """ Up-vote a song. """
         if database.check_song_exists(party_id, song_id):
-            vote_key  = "%s%s".format(party_id, song_id)
+            vote_key  = "{}{}".format(party_id, song_id)
             prev_vote = session.get(vote_key)
             if not prev_vote or prev_vote == "down":
                 # this value is either None, down, or up. Only allow up-vote if None or down.
-                if database.add_vote(party_id, song_id, 1):
+                if not prev_vote:
+                    rv = database.add_vote(party_id, song_id, 1)
+                elif prev_vote == "down":
+                    rv = database.add_vote(party_id, song_id, 2)
+                if rv:
                     session[vote_key] = "up"
                     msg = "Up-voted song {}.".format(song_id)
                 else:
@@ -132,11 +177,15 @@ class Votes(Resource):
     def delete(self, party_id, song_id):
         """ Down-vote a song. """
         if database.check_song_exists(party_id, song_id):
-            vote_key  = "%s%s".format(party_id, song_id)
+            vote_key  = "{}{}".format(party_id, song_id)
             prev_vote = session.get(vote_key)
             if not prev_vote or prev_vote == "up":
-                # this value is either None, down, or up. Only allow down-vote if None or up.
-                if database.add_vote(party_id, song_id, -1):
+                # this value is either None, down, or up. Only allow up-vote if None or up.
+                if not prev_vote:
+                    rv = database.add_vote(party_id, song_id, -1)
+                elif prev_vote == "up":
+                    rv = database.add_vote(party_id, song_id, -2)
+                if rv:
                     session[vote_key] = "down"
                     msg = "Down-voted song {}.".format(song_id)
                 else:

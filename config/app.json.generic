@@ -24,6 +24,7 @@
         "client_id":            "<YOUR SPOTIFY CLIENT ID HERE>",
         "client_secret":        "<YOUR SPOTIFY CLIENT SECRET HERE>",
         "local_redirect_uri":   "callback",
+        "token_duration":       3600,
         "scopes":               "playlist-modify-public"
     }
 

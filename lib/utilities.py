@@ -46,7 +46,8 @@ def get_jinja_context(include_dict=None):
         "app_version":          app_config["APP"]["app_version"],
         "app_description":      app_config["APP"]["app_description"],
         "app_author":           app_config["APP"]["app_author"],
-        "app_author_website":   app_config["APP"]["app_author_website"]
+        "app_author_website":   app_config["APP"]["app_author_website"],
+        "is_user_logged_in":    True if get_user_id() else False
     }
     if include_dict:
         context = {**context, **include_dict}  # merge dictionaries
@@ -82,6 +83,8 @@ def recreate_client(token=None):
         # If we've successfully retrieved the token from the session (or have
         # been provided with a token), get authorization.
         auth = get_spotify_auth(token)
+        # TODO make sure auth token uses this too
+        auth.refresh_token_if_needed(app_config["SPOTIFY_AUTH"]["token_duration"])
         return Client(auth, session.get("client_session"))
     else:
         return None

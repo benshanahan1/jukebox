@@ -10,6 +10,7 @@ CREATE TABLE `jukeboxdb`.`parties` (
   `party_name` VARCHAR(128) NULL,
   `party_description` VARCHAR(1024) NULL,
   `party_starter_playlist` VARCHAR(64) NULL,
+  `party_exported_playlist` VARCHAR(64) NULL,
   `time_created` VARCHAR(64) NULL,
   PRIMARY KEY (`unique_id`),
   UNIQUE INDEX `row_id_UNIQUE` (`unique_id` ASC));

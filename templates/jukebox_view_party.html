@@ -10,10 +10,72 @@
 {% endblock %}
 
 {% block jukebox_content %}
+    {% if context["is_party_host"] %}
+        <div class="party-admin-controls">
+            <button type="button" class="btn btn-unique btn-rounded btn-block" data-toggle="modal" data-target="#spotify-export-modal">
+                Export Party to Spotify
+            </button>
+            <!-- <h6>Admin controls:</h6>
+            <a href="#" class="admin-control" id="export-party" 
+                onclick="javascript:export_party('{{context['party_id']}}');">Export to Spotify</a>
+            &emsp;|&emsp;
+            <a data-toggle="modal" data-target="#myModal" href="#" class="admin-control" id="delete-party">Delete Party</a> -->
+            <!-- <a href="#" class="admin-control" id="delete-party" 
+                onclick="javascript:delete_party('{{context['party_id']}}');">Delete Party</a> -->
+        </div>
+
+        <!-- Modal: Confirm export to Spotify dialog. -->
+        <div class="modal fade" id="spotify-export-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Export Party to Spotify</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to export your party, '{{context['party_name']}}'? If you have not exported this party before, a new public playlist will be created on your Spotify account with the songs from this party. Otherwise, the current playlist will be updated to reflect the current song rankings.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-unique btn-rounded" id="spotify-export-btn">Export</button>
+                        <button type="button" class="btn btn-grey btn-rounded" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Confirm deletion dialog. -->
+        <div class="modal fade" id="delete-party-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Party</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete your party, '{{context['party_name']}}'? This action is permanent and cannot be undone.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-unique btn-rounded" id="delete-party-btn">Delete</button>
+                        <button type="button" class="btn btn-grey btn-rounded" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="tracks-display">
     
-    {% for track in context["tracks"] %}
+    {% for track in context["tracks"]|sort(attribute='votes', reverse=True) %}
+        {% if context["highlight"] == "spotify:track:" + track["song_id"] or 
+              context["highlight"] == track["song_id"] %}
+        <div class="row song align-items-center highlight">
+        {% else %}
         <div class="row song align-items-center">
+        {% endif %}
             <span class="col-4 song-name">
                 <a class="song-name-hyperlink" 
                    href="https://open.spotify.com/track/{{track['song_id']}}" target="_blank">
@@ -29,7 +91,48 @@
         </div>
     {% endfor %}
     
+    <!-- Modal: Add a new song to the playlist. -->
+    <div class="song-add-container">
+        <button class="add-song-btn btn btn-unique btn-rounded btn-block" data-toggle="modal" data-target="#add-song-modal" type="button" id="add-song-modal-open-btn">Add a Song</button>
+        <div class="modal fade" id="add-song-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add a Song</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please right click the song you'd like to add in Spotify, click <i>Copy Spotify URI</i>, and then paste it below:</p>
+                        <!-- New song input. -->
+                        <div class="md-form">
+                            <i class="fas fa-music prefix grey-text"></i>
+                            <input type="text" class="form-control" id="add-song-uri-input">
+                            <label for="add-song-uri-input">Song URI</label>
+                        </div>
+                        <!-- Display errors here. -->
+                        <div class="right-aligned">
+                            <span class="add-song-error-text" id="add-song-error-text"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-unique btn-rounded" id="add-song-btn">Add a Song</button>
+                        <button type="button" class="btn btn-grey btn-rounded" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    </div>
+
+    {% if context["is_party_host"] %}
+        <br><hr>
+        <div class="center-aligned delete-party-container">
+            <a href="#" class="delete-party-link" id="delete-party" data-toggle="modal" data-target="#delete-party-modal">Delete Party</a>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block footer %}
@@ -39,7 +142,7 @@
     <script src="static/js/jukebox.js"></script>
     <!-- Defer app start until page has loaded. -->
     <script defer>
-        // TODO
+        initialize_view_party_page("{{context['party_id']}}", {{"true" if context["is_party_host"] else "false"}});
         console.log("Loaded create view party page.");
     </script>
 {% endblock %}

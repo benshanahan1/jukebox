@@ -7,7 +7,7 @@ from spotify import Client, OAuth
 from lib.api_resources import Me, Party, CreateParty, Votes
 from lib.utilities import get_database_connection, get_user_id
 from lib.utilities import get_server_location, get_app_secret_key, get_api_root, get_jinja_context
-from lib.utilities import get_spotify_auth, store_client_in_session, recreate_client
+from lib.utilities import get_spotify_auth, store_client_in_session, recreate_client_from_session
 from json import load
 from flask_session import Session
 
@@ -57,7 +57,7 @@ def jukebox_create_party():
         # We have a token, let's authorize the token with Spotify and then
         # store the client in a session so we can access it later. Then
         # render the create party page.
-        client  = Client(get_spotify_auth(token))
+        client = recreate_client_from_session()
         store_client_in_session(client)  # store client in session so we can later retrieve it
         return render_template("jukebox_create_party.html", 
             context=get_jinja_context())
@@ -70,16 +70,18 @@ def jukebox_view_party(party_id):
         # We are *viewing* an existing party. Check if the current user is 
         # logged in, and if so, if they are the party host.
         party_details = database.get_party(party_id)
+        highlight     = request.args.get("highlight")
         additional_context = {
             "party_id":             party_id,
             "party_name":           party_details["meta"]["party_name"],
             "party_description":    party_details["meta"]["party_description"],
             "tracks":               party_details["songs"],
-            "is_party_host":        database.is_user_party_host(user_id, party_id)
+            "is_party_host":        database.is_user_party_host(user_id, party_id),
+            "highlight":            highlight
         }
         return render_template("jukebox_view_party.html", context=get_jinja_context(additional_context))
     else:
-        return redirect(url_for("welcome"))
+        return render_template("jukebox_party_does_not_exist.html", context=get_jinja_context())
 
 
 @app.route("/login")

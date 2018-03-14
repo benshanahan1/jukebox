@@ -1,0 +1,17 @@
+{# Create a new Jukebox party. #}
+{# 6 March 2018, Benjamin Shanahan #}
+{% extends "jukebox_base.html" %}
+
+{% block jukebox_header %}
+    <div class="party-header">
+        <h4>That party doesn't exist!</h4>
+    </div>
+{% endblock %}
+
+{% block jukebox_content %}
+    <p>Seems like it was deleted or has expired. Sorry for the inconvenience. Why not <a href="/">create a new party</a>?</p>
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+{% endblock %}

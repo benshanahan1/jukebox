@@ -61,8 +61,8 @@ class Database(object):
             """INSERT INTO `jukeboxdb`.`parties` 
                 (`party_id`, `user_spotify_token`, `user_id`, 
                 `party_name`, `party_description`, `party_starter_playlist`, 
-                `time_created`) 
-                VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}');
+                `party_exported_playlist`, `time_created`) 
+                VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', 'none');
             """.format(party_id, dumps(user_spotify_token), user_id, 
                 party_name, party_description, party_starter_playlist, str(time())))
         # Add a new party table.
@@ -85,12 +85,35 @@ class Database(object):
             artists_list    = [artist["name"].replace("'","") for artist in track["artists"]]
             artists         = ", ".join(artists_list)
             catstr += "('{}', '{}', '{}', 0),".format(song_id, name, artists)
-        catstr = catstr[:-1]  # remove last comma
-        self.query(
-            """INSERT INTO `{}` (song_id, name, artists, votes)
-                VALUES {}
-            """.format(party_id, catstr))
+        if tracks:
+            catstr = catstr[:-1]  # remove last comma
+            self.query(
+                """INSERT INTO `{}` (song_id, name, artists, votes)
+                    VALUES {}
+                """.format(party_id, catstr))
         return True
+
+    def update_party_exported_playlist(self, party_id, party_exported_playlist):
+        """Update party_exported_playlist entry from Spotify API in database."""
+        if not self.check_party_exists(party_id):
+            return False
+        self.query(
+            """UPDATE parties
+                SET party_exported_playlist='{}'
+                WHERE party_id='{}'
+            """.format(party_exported_playlist, party_id))
+        return True
+
+    def get_party_exported_playlist(self, party_id):
+        """Retrieve party_exported_playlist entry from database."""
+        if not self.check_party_exists(party_id):
+            return None
+        rv = self.query(
+            """SELECT party_exported_playlist
+                FROM parties
+                WHERE party_id='{}'
+            """.format(party_id))
+        return rv[0]["party_exported_playlist"]
 
     def delete_party(self, party_id):
         # Return if the specified party doesn't exist.

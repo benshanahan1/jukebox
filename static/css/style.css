@@ -42,6 +42,31 @@ h6 {
     font-family: 'Quicksand', sans-serif;
     text-align: center;
 }
+a { }
+a:hover {
+    color: maroon;
+}
+.jukebox-header-hyperlink {
+    color: black;
+    text-shadow: 2px 2px 5px #999999;
+}
+.jukebox-header-hyperlink:hover {
+    color: maroon;
+}
+.party-admin-controls {
+    width: 100%;
+    text-align: center;
+    border-bottom: solid .1px #eeeeee;
+    padding-bottom: 25px;
+}
+.delete-party-container {
+    margin-bottom: -15px;
+    margin-top: -5px;
+}
+.delete-party-link {
+    color: red;
+    font-size: 10pt;
+}
 .user-image {
     max-width: 150px;
 }
@@ -66,6 +91,8 @@ h6 {
 .song {
     border-bottom: solid .1px #eeeeee;
     background: transparent;
+    padding-top: 7px;
+    padding-bottom: 7px;
 }
 .song:hover {
     background: whitesmoke;
@@ -89,7 +116,7 @@ h6 {
 }
 .song-vote-btn {
     color: black;
-    font-size: 14pt;
+    font-size: 18pt;
 }
 .song-vote-btn:hover {
     color: maroon;
@@ -102,4 +129,17 @@ h6 {
 }
 .right-aligned {
     text-align: right;
+}
+.song-add-container {
+    margin-top: 30px;
+}
+.add-song-error-text {
+    color: red;
+    font-style: italic;
+}
+.highlight {
+    background: #CDFFD6;
+}
+.btn-rounded {
+    border-radius: 10px;
 }
