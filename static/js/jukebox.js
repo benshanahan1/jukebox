@@ -68,6 +68,10 @@ function initialize_view_party_page(party_id, is_party_host) {
     }
 }
 
+function initialize_user_account_page() {
+    update_user_information();
+}
+
 function update_user_information() {
     api_get("me", function(data) {
         user_id             = data.id;

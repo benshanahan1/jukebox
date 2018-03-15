@@ -21,10 +21,14 @@
     {% block jukebox_content %}
     {% endblock %}
 
-    {% if context["is_user_logged_in"] %}
-        <div class="account-links">
-            <a href="/logout">Logout</a>&nbsp;|&nbsp;<a href="javascript:revoke_permissions();" target="_blank">Revoke Permissions</a>
-        </div>
-    {% endif %}
+    <div class="account-links">
+        {% if context["is_user_logged_in"] %}
+            <a href="/account">Settings</a>&nbsp;|&nbsp;<a href="/logout">Logout</a>
+        {% elif context["party_id"] %}
+            <a href="/login?redirect={{context['party_id']}}">Login to Spotify</a>
+        {% else %}    
+            <a href="/login?redirect=account">Login to Spotify</a>
+        {% endif %}
+    </div>
 
 {% endblock %}

@@ -1,0 +1,26 @@
+{# Jukebox user account page. #}
+{# 14 March 2018, Benjamin Shanahan #}
+{% extends "jukebox_base.html" %}
+
+{% block jukebox_header %}
+    <h3>Account Settings</h3>
+    {{ super() }}
+{% endblock %}
+
+{% block jukebox_content %}
+<ul>
+    <li><a href="javascript:revoke_permissions();" target="_blank">Revoke Spotify Permissions</a></li>
+</ul>
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+    <!-- Load app JS requirements. -->
+    <script src="static/js/api.js"></script>
+    <script src="static/js/jukebox.js"></script>
+    <!-- Defer app start until page has loaded. -->
+    <script defer>
+        initialize_user_account_page();
+        console.log("Loaded create user account page.");
+    </script>
+{% endblock %}

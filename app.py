@@ -47,25 +47,18 @@ def welcome():
 
 @app.route("/jukebox")
 def jukebox_create_party():
-    token = session.get("spotify_token")  # retrieve authorized spotify token, if exists
+    user_id = get_user_id()
     # We are *creating* a new party.
-    if not token:
+    if not user_id:
         # We don't have a valid token stored. User is not authorized. 
         # Redirect to Spotify for authorization.
         return redirect(url_for("authorize"))
     else:
-        # We have a token, let's authorize the token with Spotify and then
-        # store the client in a session so we can access it later. Then
-        # render the create party page.
-        client = recreate_client_from_session()
-        store_client_in_session(client)  # store client in session so we can later retrieve it
-        return render_template("jukebox_create_party.html", 
-            context=get_jinja_context())
+        return render_template("jukebox_create_party.html", context=get_jinja_context())
 
 @app.route("/<string:party_id>")
 def jukebox_view_party(party_id):
-    token = session.get("spotify_token")  # retrieve authorized spotify token, if exists
-    user_id = get_user_id()  # get user_id from session ,if exists
+    user_id = get_user_id()  # get user_id from session, if exists
     if party_id and database.check_party_exists(party_id):
         # We are *viewing* an existing party. Check if the current user is 
         # logged in, and if so, if they are the party host.
@@ -84,9 +77,21 @@ def jukebox_view_party(party_id):
         return render_template("jukebox_party_does_not_exist.html", context=get_jinja_context())
 
 
+@app.route("/account")
+def jukebox_user_account():
+    # We are displaying the user's account details.
+    if get_user_id():
+        return render_template("jukebox_user_account.html", context=get_jinja_context())
+    else:
+        return redirect("welcome")
+
+
 @app.route("/login")
 @app.route("/authorize")
 def authorize():
+    redirect_url = request.args.get("redirect")
+    if redirect_url:
+        session["login_redirect"] = redirect_url
     auth = get_spotify_auth()
     return redirect(auth.authorize_url)
 
@@ -101,7 +106,14 @@ def callback():
     auth = get_spotify_auth()
     auth.request_token(request.url)
     session["spotify_token"] = auth.token
-    return redirect(url_for("jukebox_create_party"))
+    client = Client(auth)  # create Client object
+    store_client_in_session(client)  # store in session so we can retrieve it
+    redirect_url = session.get("login_redirect")
+    if redirect_url:
+        try:
+            return redirect(redirect_url)
+        except:
+            return redirect(url_for("jukebox_user_account"))
 
 
 @app.route("/logout")
