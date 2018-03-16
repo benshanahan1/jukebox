@@ -23,7 +23,7 @@
 
     <div class="account-links">
         {% if context["is_user_logged_in"] %}
-            <a href="/account">Settings</a>&nbsp;|&nbsp;<a href="/logout">Logout</a>
+            <a href="/account">Account</a>&nbsp;|&nbsp;{% if context["party_id"] %}<a href="/logout?redirect={{context['party_id']}}">Logout</a>{% else %}<a href="/logout">Logout</a>{% endif %}
         {% elif context["party_id"] %}
             <a href="/login?redirect={{context['party_id']}}">Login to Spotify</a>
         {% else %}    

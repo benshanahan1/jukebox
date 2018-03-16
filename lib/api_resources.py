@@ -88,7 +88,10 @@ class Party(Resource):
         if client and user_id:
             if database.is_user_party_host(user_id, party_id):
                 database.delete_party(party_id)
-                return {"message": "Successfully deleted party {}.".format(party_id)}
+                return {
+                    "message": "Successfully deleted party {}.".format(party_id),
+                    "success": True
+                }
             else:
                 abort(403, "User is not the party host.")
         else:
@@ -135,6 +138,30 @@ class CreateParty(Resource):
                 "party_id": party_id,
                 "message": "Created new party: {}".format(party_details["name"])
             }
+        else:
+            abort(403, "User has not logged in to Spotify.")
+
+
+class UpdateParty(Resource):
+    """Update name and or description of a party.
+    """
+    def post(self):
+        user_id         = get_user_id()
+        party_details   = request.get_json()
+        if user_id:
+            msg = ""
+            party_id = party_details["party_id"]
+            if "name" in party_details:
+                new_name = party_details["name"]
+                database.update_party_name(party_id, new_name)
+                msg += "Updated party name to '{}'. ".format(new_name)
+            if "description" in party_details:
+                new_description = party_details["description"]
+                database.update_party_description(party_id, new_description)
+                msg += "Updated party description to '{}'. ".format(new_description)
+            if "name" not in party_details and "description" not in party_details:
+                abort(400, "Bad data payload.")
+            return { "message": msg, "success": True }
         else:
             abort(403, "User has not logged in to Spotify.")
 

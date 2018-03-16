@@ -2,15 +2,27 @@
 {# 6 March 2018, Benjamin Shanahan #}
 {% extends "jukebox_base.html" %}
 
+{#  Shorthand...                #}
+{%  if context["is_party_host"] %}
+{%      set is_host = True      %}
+{%  else                        %}
+{%      set is_host = False     %}
+{%  endif                       %}
+
 {% block jukebox_header %}
     <div class="party-header">
-        <h4>{{context["party_name"]}}</h4>
-        <p>{{context["party_description"]}}</p>
+        {% if is_host %}
+            <h4 contenteditable="true" class="editable-text" id="header-party-name">{{context["party_name"]}}</h4>
+            <p  contenteditable="true" class="editable-text" id="header-party-description">{{context["party_description"]}}</p>
+        {% else %}
+            <h4 id="header-party-name">{{context["party_name"]}}</h4>
+            <p id="header-party-description">{{context["party_description"]}}</p>
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block jukebox_content %}
-    {% if context["is_party_host"] %}
+    {% if is_host %}
         <div class="party-admin-controls">
             <button type="button" class="btn btn-unique btn-rounded btn-block" data-toggle="modal" data-target="#spotify-export-modal">
                 Export Party to Spotify
@@ -91,6 +103,8 @@
         </div>
     {% endfor %}
     
+    </div>
+
     <!-- Modal: Add a new song to the playlist. -->
     <div class="song-add-container">
         <button class="add-song-btn btn btn-unique btn-rounded btn-block" data-toggle="modal" data-target="#add-song-modal" type="button" id="add-song-modal-open-btn">Add a Song</button>
@@ -125,9 +139,7 @@
         </div>
     </div>
 
-    </div>
-
-    {% if context["is_party_host"] %}
+    {% if is_host %}
         <br><hr>
         <div class="center-aligned delete-party-container">
             <a href="#" class="delete-party-link" id="delete-party" data-toggle="modal" data-target="#delete-party-modal">Delete Party</a>
@@ -142,7 +154,7 @@
     <script src="static/js/jukebox.js"></script>
     <!-- Defer app start until page has loaded. -->
     <script defer>
-        initialize_view_party_page("{{context['party_id']}}", {{"true" if context["is_party_host"] else "false"}});
+        initialize_view_party_page("{{context['party_id']}}", {{"true" if is_host else "false"}});
         console.log("Loaded create view party page.");
     </script>
 {% endblock %}

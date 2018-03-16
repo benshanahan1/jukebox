@@ -65,10 +65,38 @@ function initialize_view_party_page(party_id, is_party_host) {
                 location.replace(location.origin);  // redirect user to homepage
             });
         });
+        $("#header-party-name").blur(function() {
+            var new_name = $("#header-party-name").text();
+            var payload = {
+                "party_id":     party_id,
+                "name":         new_name
+            };
+            api_post("party/update", JSON.stringify(payload), function(data) {
+                console.log(data.message);
+            });
+        });
+        $("#header-party-description").blur(function() {
+            var new_description = $("#header-party-description").text();
+            var payload = {
+                "party_id":     party_id,
+                "description":  new_description
+            };
+            api_post("party/update", JSON.stringify(payload), function(data) {
+                console.log(data.message);
+            });
+        });
     }
 }
 
 function initialize_user_account_page() {
+    $("#account-create-party-btn").click(function() {
+        // Redirect to party create page.
+        location.replace(location.origin + "/create");
+    });
+    $("#account-revoke-spotify-permissions").click(function() {
+        // Direct user to page to revoke Jukebox app permissions.
+        revoke_permissions();
+    });
     update_user_information();
 }
 
@@ -143,6 +171,9 @@ function vote_on_song(vote_display_id, party_id, song_id, vote_type) {
 }
 
 function revoke_permissions() {
+    // Redirect page to /logout endpoint and open a new tab with Spotify 
+    // connected apps page. The new tab (Spotify account page) will take
+    // the browser's focus.
+    location.replace(location.origin + "/logout");
     window.open("https://www.spotify.com/us/account/apps/");
-    window.location.replace("/logout");
 }

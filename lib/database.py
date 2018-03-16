@@ -104,6 +104,28 @@ class Database(object):
             """.format(party_exported_playlist, party_id))
         return True
 
+    def update_party_name(self, party_id, new_party_name):
+        """Update party_name entry in parties."""
+        if not self.check_party_exists(party_id):
+            return False
+        self.query(
+            """UPDATE parties
+                SET party_name='{}'
+                WHERE party_id='{}'
+            """.format(new_party_name, party_id))
+        return True
+
+    def update_party_description(self, party_id, new_party_description):
+        """Update party_description entry in parties."""
+        if not self.check_party_exists(party_id):
+            return False
+        self.query(
+            """UPDATE parties
+                SET party_description='{}'
+                WHERE party_id='{}'
+            """.format(new_party_description, party_id))
+        return True
+
     def get_party_exported_playlist(self, party_id):
         """Retrieve party_exported_playlist entry from database."""
         if not self.check_party_exists(party_id):
@@ -232,3 +254,12 @@ class Database(object):
             return True
         else:
             return False
+
+    def get_user_parties(self, user_id):
+        """ Return a list of all user's parties. """
+        rv = self.query(
+            """SELECT *
+                FROM parties
+                WHERE user_id='{}'
+            """.format(user_id))
+        return rv if rv else None

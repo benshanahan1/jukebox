@@ -3,14 +3,39 @@
 {% extends "jukebox_base.html" %}
 
 {% block jukebox_header %}
-    <h3>Account Settings</h3>
     {{ super() }}
 {% endblock %}
 
 {% block jukebox_content %}
-<ul>
-    <li><a href="javascript:revoke_permissions();" target="_blank">Revoke Spotify Permissions</a></li>
-</ul>
+    <h3>Your Parties:</h3>
+
+    {% if context["user_parties"] %}
+        {% for party in context["user_parties"] %}
+            <a href="/{{party['party_id']}}" class="account-party-hyperlink">
+                <div class="row account-party align-items-center">
+                    <div class="col-4 account-party-name">
+                        {{party['party_name']}}
+                    </div>
+                    <div class="col-8 account-party-description">
+                        {{party['party_description']}}
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <p>No parties to display. Create a new one!</p>
+    {% endif %}
+
+    <br>
+    <div class="account-button-container">
+        <button class="account-button btn btn-unique btn-rounded btn-block" type="button" id="account-create-party-btn">Create a New Party</button>
+    </div>
+    <br>
+
+    <div class="center-aligned">
+        <a href="#" class="delete-party-link" id="account-revoke-spotify-permissions">Revoke Spotify Permissions</a>
+    </div>
+
 {% endblock %}
 
 {% block footer %}

@@ -59,6 +59,34 @@ a:hover {
     border-bottom: solid .1px #eeeeee;
     padding-bottom: 25px;
 }
+.account-button-container {
+    margin-bottom: 20px;
+}
+.account-button { }
+.account-party {
+    border-bottom: solid .1px #eeeeee;
+    background: transparent;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    min-height: 75px;
+}
+.account-party:hover {
+    background: whitesmoke;
+}
+.account-party-name {
+    font-weight: bold;
+    font-size: 13pt;
+}
+.account-party-description {
+    font-style: italic;
+    font-size: 13pt;
+}
+.account-party-hyperlink {
+    color: black;
+}
+.account-party-hyperlink:hover {
+    color: black;
+}
 .delete-party-container {
     margin-bottom: -15px;
     margin-top: -5px;
@@ -142,4 +170,7 @@ a:hover {
 }
 .btn-rounded {
     border-radius: 10px;
+}
+.editable-text {
+    background: #eee8c8;
 }

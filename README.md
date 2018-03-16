@@ -18,6 +18,14 @@ Once everything is installed and configured, run:
 And open your web browser to [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
 
+
+## TODO
+
+* character escaping on playlist load and insert into database
+* timeout and error on API queries from front-end that fail or hang
+
+
+
 ## Screenshots
 
 ![Welcome](static/img/screenshot/welcome-page.png "Welcome")

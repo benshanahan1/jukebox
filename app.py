@@ -4,7 +4,7 @@ from gevent.wsgi import WSGIServer
 from flask import Flask, session, request, redirect, url_for, render_template
 from flask_restful import Api
 from spotify import Client, OAuth
-from lib.api_resources import Me, Party, CreateParty, Votes
+from lib.api_resources import Me, Party, CreateParty, UpdateParty, Votes
 from lib.utilities import get_database_connection, get_user_id
 from lib.utilities import get_server_location, get_app_secret_key, get_api_root, get_jinja_context
 from lib.utilities import get_spotify_auth, store_client_in_session, recreate_client_from_session
@@ -31,6 +31,7 @@ Session(app)
 API_ROOT = get_api_root() 
 api.add_resource(Me, API_ROOT + "/me")
 api.add_resource(CreateParty, API_ROOT + "/party")
+api.add_resource(UpdateParty, API_ROOT + "/party/update")
 api.add_resource(Party, API_ROOT + "/party/<string:party_id>")
 api.add_resource(Votes, API_ROOT + "/party/<string:party_id>/song/<string:song_id>/votes")
 
@@ -42,19 +43,24 @@ api.add_resource(Votes, API_ROOT + "/party/<string:party_id>/song/<string:song_i
 @app.route("/")
 @app.route("/welcome")
 def welcome():
-    return render_template("welcome.html", context=get_jinja_context())
+    user_id = get_user_id()
+    if user_id:
+        return redirect(url_for("jukebox_user_account"))
+    else:
+        return render_template("welcome.html", context=get_jinja_context())
 
 
-@app.route("/jukebox")
+@app.route("/create")
 def jukebox_create_party():
     user_id = get_user_id()
     # We are *creating* a new party.
-    if not user_id:
+    if user_id:
+        return render_template("jukebox_create_party.html", context=get_jinja_context())
+    else:
         # We don't have a valid token stored. User is not authorized. 
         # Redirect to Spotify for authorization.
-        return redirect(url_for("authorize"))
-    else:
-        return render_template("jukebox_create_party.html", context=get_jinja_context())
+        return redirect(url_for("welcome"))
+
 
 @app.route("/<string:party_id>")
 def jukebox_view_party(party_id):
@@ -80,8 +86,12 @@ def jukebox_view_party(party_id):
 @app.route("/account")
 def jukebox_user_account():
     # We are displaying the user's account details.
-    if get_user_id():
-        return render_template("jukebox_user_account.html", context=get_jinja_context())
+    user_id = get_user_id()
+    if user_id:
+        additional_context = {
+            "user_parties": database.get_user_parties(user_id)
+        }
+        return render_template("jukebox_user_account.html", context=get_jinja_context(additional_context))
     else:
         return redirect("welcome")
 
@@ -113,12 +123,19 @@ def callback():
         try:
             return redirect(redirect_url)
         except:
-            return redirect(url_for("jukebox_user_account"))
+            pass
+    return redirect(url_for("jukebox_user_account"))
 
 
 @app.route("/logout")
 def logout():
+    redirect_url = request.args.get("redirect")
     session.clear()
+    if redirect_url:
+        try:
+            return redirect(redirect_url)
+        except:
+            pass
     return redirect(url_for("welcome"))
 
 
