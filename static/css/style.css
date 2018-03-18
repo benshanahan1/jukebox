@@ -46,9 +46,12 @@ a { }
 a:hover {
     color: maroon;
 }
-.jukebox-header-hyperlink {
+.jukebox-header {
     color: black;
     text-shadow: 2px 2px 5px #999999;
+}
+.jukebox-header-hyperlink {
+    color: black;
 }
 .jukebox-header-hyperlink:hover {
     color: maroon;

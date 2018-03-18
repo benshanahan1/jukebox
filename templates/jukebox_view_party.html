@@ -47,7 +47,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to export your party, '{{context['party_name']}}'? If you have not exported this party before, a new public playlist will be created on your Spotify account with the songs from this party. Otherwise, the current playlist will be updated to reflect the current song rankings.
+                        <p>Are you sure you want to export your party, <b>{{context['party_name']}}</b>?</p>
+                        <p>If you have not exported this party before, a new public playlist will be created on your Spotify account with the songs from this party. Otherwise, the current playlist will be updated to reflect the current song rankings.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-unique btn-rounded" id="spotify-export-btn">Export</button>
@@ -68,7 +69,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to delete your party, '{{context['party_name']}}'? This action is permanent and cannot be undone.
+                        <p>Are you sure you want to delete your party, <b>{{context['party_name']}}</b>?</p>
+                        <p>This action is permanent and cannot be undone. If you have exported this party to a Spotify playlist, the Spotify playlist will not be deleted.</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-unique btn-rounded" id="delete-party-btn">Delete</button>

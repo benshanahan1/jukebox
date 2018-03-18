@@ -28,12 +28,16 @@ class Database(object):
             user        = self.user,
             passwd      = self.passwd,
             db          = self.db,
-            cursorclass = pymysql.cursors.DictCursor)
+            cursorclass = pymysql.cursors.DictCursor,
+            use_unicode = True, 
+            charset     = "utf8")
+        self.escape = self.conn.escape_string  # escape string, shorthand
 
     def query(self, q):
         """Query database and fetchall.
 
         :param str q: SQL query string to execute.
+        :param list vals: *Optional.* Values to escape before inserting into query.
         :return: Query result or None (if nothing is returned from query).
         :rtype: dict
 
@@ -56,13 +60,16 @@ class Database(object):
         """Create a new party table."""
         if self.check_party_exists(party_id):
             return False
+        # Escape arguments before doing anything with them.
+        party_name = self.escape(party_name)
+        party_description = self.escape(party_description)
         # Add a parties entry.
         self.query(
             """INSERT INTO `jukeboxdb`.`parties` 
                 (`party_id`, `user_spotify_token`, `user_id`, 
                 `party_name`, `party_description`, `party_starter_playlist`, 
                 `party_exported_playlist`, `time_created`) 
-                VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', 'none');
+                VALUES ('{}', '{}', '{}', '{}', '{}', '{}', 'none', '{}');
             """.format(party_id, dumps(user_spotify_token), user_id, 
                 party_name, party_description, party_starter_playlist, str(time())))
         # Add a new party table.
@@ -81,8 +88,8 @@ class Database(object):
         catstr = ""
         for track in tracks:
             song_id         = track["id"]
-            name            = track["name"].replace("'","")  # TODO implement better char escaping
-            artists_list    = [artist["name"].replace("'","") for artist in track["artists"]]
+            name            = self.escape(track["name"])
+            artists_list    = [self.escape(artist["name"]) for artist in track["artists"]]
             artists         = ", ".join(artists_list)
             catstr += "('{}', '{}', '{}', 0),".format(song_id, name, artists)
         if tracks:
@@ -112,7 +119,7 @@ class Database(object):
             """UPDATE parties
                 SET party_name='{}'
                 WHERE party_id='{}'
-            """.format(new_party_name, party_id))
+            """.format(self.escape(new_party_name), party_id))
         return True
 
     def update_party_description(self, party_id, new_party_description):
@@ -123,7 +130,7 @@ class Database(object):
             """UPDATE parties
                 SET party_description='{}'
                 WHERE party_id='{}'
-            """.format(new_party_description, party_id))
+            """.format(self.escape(new_party_description), party_id))
         return True
 
     def get_party_exported_playlist(self, party_id):
@@ -151,17 +158,17 @@ class Database(object):
             print("An error occurred while deleting party: {}".format(e))
             return False
 
-    def retrieve_spotify_token(self, party_id):
-        # Retrieve the Spotify authorization token from the parties entry.
-        if self.check_party_exists(party_id):
-            rv = self.query(
-                """SELECT user_spotify_token
-                    FROM parties
-                    WHERE party_id='{}'
-                """.format(party_id))
-            return rv[0]
-        else:
-            return None
+    # def retrieve_spotify_token(self, party_id):
+    #     # Retrieve the Spotify authorization token from the parties entry.
+    #     if self.check_party_exists(party_id):
+    #         rv = self.query(
+    #             """SELECT user_spotify_token
+    #                 FROM parties
+    #                 WHERE party_id='{}'
+    #             """.format(party_id))
+    #         return rv[0]
+    #     else:
+    #         return None
 
     def check_party_exists(self, party_id):
         """Check if a party table and row-entry exist in database."""
