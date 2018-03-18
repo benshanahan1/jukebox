@@ -109,7 +109,7 @@ class Database(object):
         self.query(
             """INSERT INTO `{}` (song_id, name, artists, votes)
                 VALUES ('{}', '{}', '{}', 0)
-            """.format(song_id, name, artists))
+            """.format(party_id, song_id, name, artists))
         return True
 
     def update_party_exported_playlist(self, party_id, party_exported_playlist):

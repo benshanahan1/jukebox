@@ -76,6 +76,7 @@ def jukebox_view_party(party_id):
             "party_name":           party_details["meta"]["party_name"],
             "party_description":    party_details["meta"]["party_description"],
             "tracks":               party_details["songs"],
+            "is_user":              user_id is not None,
             "is_party_host":        database.is_user_party_host(user_id, party_id),
             "highlight":            highlight
         }

@@ -45,8 +45,7 @@ function initialize_view_party_page(party_id, is_party_host) {
         // Made it through all error conditions. Proceed.
         add_song(party_id, new_song_uri, function() {
             // Song was added successfully. Refresh page and highlight added entry.
-            console.log("success");
-            // location.replace(location.origin + location.pathname + "?highlight=" + new_song_uri);
+            location.replace(location.origin + location.pathname + "?highlight=" + new_song_uri);
         }, function() {
             // Invalid spotify URI.
             $("#add-song-error-text").text("Please enter a valid Spotify URI.");

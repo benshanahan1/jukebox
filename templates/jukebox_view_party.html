@@ -8,6 +8,11 @@
 {%  else                        %}
 {%      set is_host = False     %}
 {%  endif                       %}
+{%  if context["is_user"]       %}
+{%      set is_user = True      %}
+{%  else                        %}
+{%      set is_user = False     %}
+{%  endif                       %}
 
 {% block jukebox_header %}
     <div class="party-header">
@@ -107,6 +112,7 @@
     
     </div>
 
+    {% if is_user %}
     <!-- Modal: Add a new song to the playlist. -->
     <div class="song-add-container">
         <button class="add-song-btn btn btn-unique btn-rounded btn-block" data-toggle="modal" data-target="#add-song-modal" type="button" id="add-song-modal-open-btn">Add a Song</button>
@@ -140,6 +146,11 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="song-add-container center-aligned">
+        <p>You must login to add songs!</p>
+    </div>
+    {% endif %}
 
     {% if is_host %}
         <br><hr>
