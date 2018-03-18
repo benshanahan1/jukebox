@@ -55,8 +55,8 @@ class Database(object):
         self.lock.release()
         return rows
 
-    def create_party(self, user_id, user_spotify_token, party_id, 
-        party_name, party_description, party_starter_playlist, tracks):
+    def create_party(self, user_id, party_id, party_name, party_description, 
+        party_starter_playlist, tracks):
         """Create a new party table."""
         if self.check_party_exists(party_id):
             return False
@@ -66,10 +66,9 @@ class Database(object):
         # Add a parties entry.
         self.query(
             """INSERT INTO `jukeboxdb`.`parties` 
-                (`party_id`, `user_spotify_token`, `user_id`, 
-                `party_name`, `party_description`, `party_starter_playlist`, 
-                `party_exported_playlist`, `time_created`) 
-                VALUES ('{}', '{}', '{}', '{}', '{}', '{}', 'none', '{}');
+                (`party_id`, `user_id`, `party_name`, `party_description`, 
+                `party_starter_playlist`, `party_exported_playlist`, `time_created`) 
+                VALUES ('{}', '{}', '{}', '{}', '{}', 'none', '{}');
             """.format(party_id, dumps(user_spotify_token), user_id, 
                 party_name, party_description, party_starter_playlist, str(time())))
         # Add a new party table.
@@ -98,6 +97,19 @@ class Database(object):
                 """INSERT INTO `{}` (song_id, name, artists, votes)
                     VALUES {}
                 """.format(party_id, catstr))
+        return True
+
+    def add_song_to_party(self, party_id, song_id, track):
+        """ Add a new song to a party. """
+        if not self.check_party_exists(party_id):
+            return False
+        name            = self.escape(track["name"])
+        artists_list    = [self.escape(artist["name"]) for artist in track["artists"]]
+        artists         = ", ".join(artists_list)
+        self.query(
+            """INSERT INTO `{}` (song_id, name, artists, votes)
+                VALUES ('{}', '{}', '{}', 0)
+            """.format(song_id, name, artists))
         return True
 
     def update_party_exported_playlist(self, party_id, party_exported_playlist):
@@ -157,18 +169,6 @@ class Database(object):
         except Exception as e:
             print("An error occurred while deleting party: {}".format(e))
             return False
-
-    # def retrieve_spotify_token(self, party_id):
-    #     # Retrieve the Spotify authorization token from the parties entry.
-    #     if self.check_party_exists(party_id):
-    #         rv = self.query(
-    #             """SELECT user_spotify_token
-    #                 FROM parties
-    #                 WHERE party_id='{}'
-    #             """.format(party_id))
-    #         return rv[0]
-    #     else:
-    #         return None
 
     def check_party_exists(self, party_id):
         """Check if a party table and row-entry exist in database."""

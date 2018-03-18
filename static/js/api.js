@@ -15,22 +15,23 @@ function api_get(endpoint="", callback=undefined) {
 }
 
 // POST request to API. Endpoint specifies the API endpoint for the request.
-function api_post(endpoint="", payload=undefined, callback=undefined) {
+function api_post(endpoint="", payload=undefined, onsuccess=undefined, onerror=undefined) {
     var full_endpoint = api + endpoint;
     done_callback = function(data) {
-        if (callback != undefined) {
-            callback(data);
+        if (onsuccess != undefined) {
+            onsuccess(data);
         }
     };
     fail_callback = function(data) {
-        // console.log(data)
-        console.log("POST request to API failed: " + full_endpoint);
+        if (onerror != undefined) {
+            onerror();
+        } else {
+            console.log("POST request to API failed: " + full_endpoint);
+        }
     };
     if (payload == undefined) {
         $.post(full_endpoint, done_callback).fail(fail_callback);
     } else {
-        // console.log(payload)
-        // $.post(full_endpoint, payload).done(done_callback).fail(fail_callback);
         $.ajax({ type: 'POST',
                 url: full_endpoint,
                 data: payload,
@@ -39,7 +40,8 @@ function api_post(endpoint="", payload=undefined, callback=undefined) {
                     'Content-Type' : 'application/json'
                 },
                 contentType: 'application/json',
-                success: done_callback
+                success: done_callback,
+                fail: fail_callback
         });
     }
 }

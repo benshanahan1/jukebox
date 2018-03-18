@@ -14,10 +14,10 @@
     },
 
     "DATABASE": {
-        "host":     "<database hostname>",
-        "user":     "<database username>",
-        "password": "<database password>",
-        "dbname":   "<database name>"
+        "host":     "<DATABASE HOSTNAME>",
+        "user":     "<DATABASE USERNAME>",
+        "password": "<DATABASE PASSWORD>",
+        "dbname":   "<DATABASE NAME>"
     },
 
     "SPOTIFY_AUTH": {

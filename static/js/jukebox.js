@@ -45,7 +45,8 @@ function initialize_view_party_page(party_id, is_party_host) {
         // Made it through all error conditions. Proceed.
         add_song(party_id, new_song_uri, function() {
             // Song was added successfully. Refresh page and highlight added entry.
-            location.replace(location.origin + location.pathname + "?highlight=" + new_song_uri);
+            console.log("success");
+            // location.replace(location.origin + location.pathname + "?highlight=" + new_song_uri);
         }, function() {
             // Invalid spotify URI.
             $("#add-song-error-text").text("Please enter a valid Spotify URI.");
@@ -73,7 +74,7 @@ function initialize_view_party_page(party_id, is_party_host) {
             };
             api_post("party/update", JSON.stringify(payload), function(data) {
                 console.log(data.message);
-            });
+            }, undefined);
         });
         $("#header-party-description").blur(function() {
             var new_description = $("#header-party-description").text();
@@ -83,7 +84,7 @@ function initialize_view_party_page(party_id, is_party_host) {
             };
             api_post("party/update", JSON.stringify(payload), function(data) {
                 console.log(data.message);
-            });
+            }, undefined);
         });
     }
 }
@@ -120,7 +121,7 @@ function create_party(name, description, playlist) {
     api_post("party", JSON.stringify(payload), function(data) {
         console.log(data.message);
         window.location.replace("/" + data.party_id)
-    });
+    }, undefined);
 }
 
 function export_party(party_id, callback) {
@@ -129,7 +130,7 @@ function export_party(party_id, callback) {
         if (callback != undefined) {
             callback();
         }
-    })
+    }, undefined)
 }
 
 function delete_party(party_id, callback) {
@@ -141,14 +142,8 @@ function delete_party(party_id, callback) {
     });
 }
 
-function add_song(party_id, new_song_id, success_callback, error_callback) {
-    console.log("Party: " + party_id + ", Song: " + new_song_id + ". Not implemented.");
-    if (success_callback != undefined) {
-        success_callback();
-    }
-    // if (error_callback != undefined) {
-    //     error_callback();
-    // }
+function add_song(party_id, new_song_uri, success_callback, error_callback) {
+    api_post("party/" + party_id + "/song/" + new_song_uri, undefined, success_callback, error_callback);
 }
 
 function vote_on_song(vote_display_id, party_id, song_id, vote_type) {
@@ -157,7 +152,7 @@ function vote_on_song(vote_display_id, party_id, song_id, vote_type) {
             api_post("party/" + party_id + "/song/" + song_id + "/votes", undefined, function(data) {
                 console.log(data.message);
                 $("#" + vote_display_id).text(data.vote_count);
-            });
+            }, undefined);
             break;
         case "down":
             api_delete("party/" + party_id + "/song/" + song_id + "/votes", function(data) {

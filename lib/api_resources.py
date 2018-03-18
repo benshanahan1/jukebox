@@ -166,6 +166,32 @@ class UpdateParty(Resource):
             abort(403, "User has not logged in to Spotify.")
 
 
+class Song(Resource):
+    """ Add a song to a party. Requires user authorization.
+    """
+    def post(self, party_id, song_uri):
+        client  = recreate_client_from_session()
+        user_id = get_user_id()
+        if user_id:
+            try:
+                song_id = song_uri.split(":")[2]
+            except:
+                abort(400, "Invalid song URI.")
+            track = client.api.track(song_id)
+            if database.add_song_to_party(party_id, song_id, track):
+                return {
+                    "message": "Added song {} to party {}.".format(song_id, party_id),
+                    "success": True
+                }
+            else:
+                return {
+                    "message": "Specified party does not exist.",
+                    "success": False
+                }
+        else:
+            abort(403, "User has not logged in to Spotify.")            
+
+
 class Votes(Resource):
     """Enable user voting (without login required).
     """
@@ -225,20 +251,3 @@ class Votes(Resource):
             }
         else:
             abort(404, "Specified song / party does not exist.")
-
-
-
-
-
-# TODO: make votes adjust the playlist in spotify.
-
-
-# # If it's an unknown user or non-host user, let's recreate the host
-# # Spotify authorization so we can interact with the Web API.
-# token = database.retrieve_spotify_token(party_id)
-# if token:
-#     client = recreate_client(token)
-#     if client:
-#         print("got client")
-#     else:
-#         print("didn't work?")

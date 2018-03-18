@@ -5,7 +5,6 @@ CREATE SCHEMA `jukeboxdb` ;
 CREATE TABLE `jukeboxdb`.`parties` (
   `unique_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `party_id` VARCHAR(64) NULL,
-  `user_spotify_token` VARCHAR(1024) NULL,
   `user_id` VARCHAR(64) NULL,
   `party_name` VARCHAR(128) NULL,
   `party_description` VARCHAR(1024) NULL,
