@@ -1,7 +1,0 @@
-# Send SIGINT to process running in screen.
-if screen -list | grep -q "jukebox"; then
-	screen -S jukebox -X stuff ^C
-	echo "Stopped server."
-else
-	echo "Server is not running."
-fi

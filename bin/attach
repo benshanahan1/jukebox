@@ -1,5 +1,0 @@
-if screen -list | grep -q "jukebox"; then
-	screen -r jukebox
-else
-	echo "Server is not running."
-fi

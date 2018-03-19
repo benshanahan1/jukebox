@@ -28,17 +28,11 @@
 
 {% block jukebox_content %}
     {% if is_host %}
+        <p class="center-aligned"><b><a href="{{context['party_id']}}">Use this link</a></b> to share this party with your friends!</p>
         <div class="party-admin-controls">
             <button type="button" class="btn btn-unique btn-rounded btn-block" data-toggle="modal" data-target="#spotify-export-modal">
                 Export Party to Spotify
             </button>
-            <!-- <h6>Admin controls:</h6>
-            <a href="#" class="admin-control" id="export-party" 
-                onclick="javascript:export_party('{{context['party_id']}}');">Export to Spotify</a>
-            &emsp;|&emsp;
-            <a data-toggle="modal" data-target="#myModal" href="#" class="admin-control" id="delete-party">Delete Party</a> -->
-            <!-- <a href="#" class="admin-control" id="delete-party" 
-                onclick="javascript:delete_party('{{context['party_id']}}');">Delete Party</a> -->
         </div>
 
         <!-- Modal: Confirm export to Spotify dialog. -->
