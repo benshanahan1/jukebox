@@ -69,8 +69,8 @@ class Database(object):
                 (`party_id`, `user_id`, `party_name`, `party_description`, 
                 `party_starter_playlist`, `party_exported_playlist`, `time_created`) 
                 VALUES ('{}', '{}', '{}', '{}', '{}', 'none', '{}');
-            """.format(party_id, dumps(user_spotify_token), user_id, 
-                party_name, party_description, party_starter_playlist, str(time())))
+            """.format(party_id, user_id, party_name, party_description, 
+                party_starter_playlist, str(time())))
         # Add a new party table.
         self.query(
             """CREATE TABLE {} (
@@ -226,7 +226,7 @@ class Database(object):
 
     def is_user_party_host(self, user_id, party_id):
         """Is the logged in user the party host?"""
-        if not user_id or not party_id:
+        if not self.check_party_exists(party_id):
             return False
         try:
             result = self.query(
@@ -234,7 +234,11 @@ class Database(object):
                     FROM parties
                     WHERE user_id='{}'
                 """.format(user_id))
-            return result != ()
+            try:
+                hosted_parties = [party["party_id"] for party in result]
+                return party_id in hosted_parties
+            except:
+                return False
         except:
             return False
 

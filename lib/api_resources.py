@@ -131,8 +131,8 @@ class CreateParty(Resource):
 
             # Add the party and itself details into the database.
             party_id = generate_party_id()
-            database.create_party(user_id, client.auth.token, 
-                party_id, party_name, party_description, party_starter_playlist, tracks)
+            database.create_party(user_id, party_id, party_name, party_description, 
+                party_starter_playlist, tracks)
 
             return {
                 "party_id": party_id,
