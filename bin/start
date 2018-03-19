@@ -1,0 +1,8 @@
+if ! screen -list | grep -q "jukebox"; then
+	screen -S jukebox -d -m sudo python3 ../app.py
+	echo "Started server."
+	echo "To attach to screen run './attach'"
+else
+	echo "Server is already running."
+fi
+
