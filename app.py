@@ -1,5 +1,7 @@
 # !/usr/bin/python3
 
+print("Starting server, please wait.")
+
 from gevent.wsgi import WSGIServer
 from flask import Flask, session, request, redirect, url_for, render_template
 from flask_restful import Api
@@ -143,4 +145,5 @@ def logout():
 
 
 if __name__ == "__main__":
+    print("Server started.")
     http_server.serve_forever()

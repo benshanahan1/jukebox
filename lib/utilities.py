@@ -61,9 +61,7 @@ def get_spotify_auth(token=None):
     auth = OAuth(
         app_config["SPOTIFY_AUTH"]["client_id"],
         app_config["SPOTIFY_AUTH"]["client_secret"],
-        redirect_uri="{}/{}".format(
-            "http://{}:{}".format(*get_server_location()),
-            app_config["SPOTIFY_AUTH"]["local_redirect_uri"]),
+        redirect_uri=app_config["SPOTIFY_AUTH"]["local_redirect_uri"],
         scopes=app_config["SPOTIFY_AUTH"]["scopes"].split(",")
     )
     auth.token = token

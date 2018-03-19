@@ -1,5 +1,5 @@
 // Functions to interact with API
-var api = "http://192.168.1.228:5000/api/v1/";
+var api = "http://jukebox.duckdns.org/api/v1/";
 
 // GET request from API. Endpoint specifies the API endpoint for the request. 
 // Simple wrapper around jQuery $.get() function.

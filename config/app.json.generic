@@ -15,7 +15,7 @@
 
     "DATABASE": {
         "host":     "<DATABASE HOSTNAME>",
-        "user":     "<DATABASE USERNAME>",
+        "username": "<DATABASE USERNAME>",
         "password": "<DATABASE PASSWORD>",
         "dbname":   "<DATABASE NAME>"
     },
