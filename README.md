@@ -2,7 +2,7 @@
 
 Crowd-source the playlist for your next party.
 
-**Disclaimer**: this app only uses the Spotify Web API, so without some form of hack, it's near-impossible to modify the queue. Therefore, this app just lets people vote on songs in a playlist and then rearranges the playlist so that the most popular songs come first. This revised playlist needs to be manually re-exported to Spotify before it can be listened to. I built this app to explore the Spotify Web API and it's pretty useless for as long as Spotify disallows real-time queue modification. Jukebox does, however, let anonymous users vote on song priority in a playlist, so that's kind of cool.
+**Disclaimer**: this app only uses the Spotify Web API, so without some form of hack, it's near-impossible to modify Spotify's play queue. Therefore, this app just lets people vote on songs in a playlist and then rearranges the playlist so that the most popular songs come first. This revised playlist needs to be manually re-exported to Spotify before it can be listened to. I built this app to explore the Spotify Web API and it's pretty useless for as long as Spotify disallows real-time queue modification. Jukebox does, however, let anonymous users vote on song priority in a playlist, so that's kind of cool.
 
 ## Installation
 
@@ -20,7 +20,7 @@ IP and port should match those specified in your 'config/app.cfg' file.
 Once everything is installed and configured, run:
 
 ```shell    
-python3 app.py
+python app.py
 ```
 
 And navigate to the site in your web browser.
